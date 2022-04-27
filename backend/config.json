@@ -1,0 +1,13 @@
+{
+    "DB_PATH": "./auth.db",
+    "TOKEN_LIFETIME": 5,
+    "REFRESH_TOKEN_LIFETIME": 1,
+    "KEY_PAIR_LIFETIME": 10,
+    "AUD": "PlenarTV",
+    "DEFAULT_USER_USERNAME": "authopie@authopie.com",
+    "DEFAULT_USER_PASSWORD": "authopie",
+    "DEFAULT_ROLE_NAME": "authopie-admin",
+    "BASE_URLS": [
+        "http://localhost:30000"
+    ]
+}

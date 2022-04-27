@@ -1,0 +1,14 @@
+# editor
+.vscode
+
+# development
+auth-venv
+__pycache__
+
+# testing
+dump
+*test*
+
+# privacy / security
+*.pem
+*.db

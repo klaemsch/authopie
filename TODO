@@ -1,0 +1,33 @@
+Priority:
+- refresh token (JWT or UUID ???)
+- client_id / client_secret
+- CORS
+
+
+Nice to have:
+- api token management
+- TZ information
+- custom base model with fastapi jsonable_encoder
+- password regex
+- logging
+- JWK x5c/x5t https://stackoverflow.com/questions/69179822/jwk-key-creation-with-x5c-and-x5t-parameters
+
+Not yet tested:
+
+
+Done:
+✓ Use Pydantic BaseSetting for Config
+✓ make sure username in oauth2 is email
+✓ role system
+✓ scope system
+✓ first user admin
+✓ public key JWK endpoint
+✓ DB Mixin / Base Class
+
+Links:
+- https://pyjwt.readthedocs.io/en/stable/usage.html#retrieve-rsa-signing-keys-from-a-jwks-endpoint
+- https://www.geocerts.com/certificate-decoder
+- https://certificatetools.com/
+- https://datatracker.ietf.org/doc/html/rfc7517
+- https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-set-properties
+- https://jwt.io/#debugger-io
