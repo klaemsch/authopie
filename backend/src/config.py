@@ -7,6 +7,11 @@ from pydantic import BaseSettings
 
 class Settings(BaseSettings):
 
+    # uvicorn start settings
+    HOST = '127.0.0.1'
+    PORT = 5555
+    LOG_LEVEL = 'debug'
+
     # first user to be created (admin)
     DEFAULT_USER_USERNAME: str = 'authopie@authopie.com'
     DEFAULT_USER_PASSWORD: str = 'authopie'

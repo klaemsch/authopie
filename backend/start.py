@@ -1,15 +1,17 @@
 import uvicorn
-import logging
+
+from src.config import config
 
 
 def main():
 
     uvicorn.run(
         "src.main:app",
-        host='127.0.0.1',
-        port=5555,
+        host=config.HOST,
+        port=config.PORT,
         reload=True,
-        log_level=logging.DEBUG,
+        log_level=config.LOG_LEVEL,
+        proxy_headers=True
     )
 
 

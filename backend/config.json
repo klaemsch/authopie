@@ -9,5 +9,8 @@
     "DEFAULT_ROLE_NAME": "authopie-admin",
     "BASE_URLS": [
         "http://localhost:30000"
-    ]
+    ],
+    "HOST": "127.0.0.1",
+    "PORT": 5555,
+    "LOG_LEVEL": "debug"
 }
