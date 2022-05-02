@@ -6,7 +6,9 @@ from .dependencies import database
 from .exceptions import EntityAlreadyExistsException
 from .routers import import_export, jwks, role, token, user
 
-app = FastAPI()
+app = FastAPI(
+    root_path=config.ROOT_PATH
+)
 
 # Settings for handling of Cross-Origin-Requests
 app.add_middleware(

@@ -12,5 +12,6 @@
     ],
     "HOST": "127.0.0.1",
     "PORT": 5555,
-    "LOG_LEVEL": "debug"
+    "LOG_LEVEL": "debug",
+    "ROOT_PATH": "/"
 }

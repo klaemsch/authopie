@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     # CORS Settins
     BASE_URLS: list[str] = ['http://localhost:3000']
 
+    # root path for proxy
+    ROOT_PATH: str = '/auth'
+
 
 def load_config():
     if not path.exists('./config.json'):

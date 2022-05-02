@@ -12,7 +12,8 @@ def main():
         port=config.PORT,
         reload=True,
         log_level='debug',
-        proxy_headers=True
+        proxy_headers=True,
+        forwarded_allow_ips="*"
     )
 
 
