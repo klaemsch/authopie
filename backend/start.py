@@ -1,6 +1,7 @@
 import uvicorn
 
-from src.config import config
+# load config from __init__.py in src
+from src import config
 
 
 def main():
@@ -10,7 +11,7 @@ def main():
         host=config.HOST,
         port=config.PORT,
         reload=True,
-        log_level=config.LOG_LEVEL,
+        log_level='debug',
         proxy_headers=True
     )
 

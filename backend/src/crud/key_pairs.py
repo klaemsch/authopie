@@ -1,13 +1,13 @@
-from datetime import datetime, timedelta
 import random
+import secrets
+from datetime import datetime, timedelta
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-
-from ..exceptions import EntityDoesNotExistException
-import secrets
-from .. import models, schemas
 from sqlalchemy.orm import Session
-from ..config import config
+
+from .. import config, models, schemas
+from ..exceptions import EntityDoesNotExistException
 
 
 def get_key_pair(kid: str, db: Session) -> schemas.KeyPair:
@@ -16,7 +16,7 @@ def get_key_pair(kid: str, db: Session) -> schemas.KeyPair:
     key_pair: models.KeyPair = models.KeyPair.get_by_kid(kid, db)
 
     if key_pair is None:
-        raise EntityDoesNotExistException('Role')
+        raise EntityDoesNotExistException('KeyPair')
 
     return schemas.KeyPair.from_orm(key_pair)
 

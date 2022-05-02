@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.expression import delete, select, update
+from sqlalchemy.sql.expression import delete
 
 from .. import logger, models, schemas
 from ..dependencies import pwdhash
@@ -20,6 +20,14 @@ def get_user(username: str, db: Session) -> schemas.UserInDB:
         raise EntityDoesNotExistException('User')
 
     return schemas.UserInDB.from_orm(user)
+
+
+def get_all_users(db: Session) -> list[schemas.UserInDB]:
+
+    return [
+        schemas.UserInDB.from_orm(user)
+        for user in models.User.get_all(db)
+    ]
 
 
 def create_user(user: schemas.UserIn, db: Session) -> schemas.UserInDB:

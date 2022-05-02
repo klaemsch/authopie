@@ -2,10 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from .. import crud, logger, schemas
-from ..dependencies import database
-from ..dependencies.security import (MyOAuth2PasswordRequestForm,
-                                     OAuth2RefreshRequestForm)
+from ..dependencies import auth, database, security
 from ..exceptions import IncorrectCredentialsException
+from ..dependencies.constants import Scopes
 
 router = APIRouter(
     prefix='/token',
@@ -15,13 +14,13 @@ router = APIRouter(
 
 @router.post('', response_model=schemas.TokenPair)
 async def login_for_token(
-    form_data: MyOAuth2PasswordRequestForm = Depends(),
+    form_data: security.MyOAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
     """
-    Endpoint to retrieve the first token (JWT + refresh_token)
+    Endpoint to retrieve the first token (access + refresh token pair)
     auth with username and password
-    Success: returns TokenPair (JWT/access_token + refresh_token)
+    Success: returns TokenPair (access_token + refresh_token)
     Failure: Returns 401 Unauthorized
     """
 
@@ -38,20 +37,46 @@ async def login_for_token(
         raise IncorrectCredentialsException
 
     # return new token pair (access_token/refresh_token)
-    return crud.create_token_pair(user, db)
+    return auth.create_token_pair(user, db)
 
 
 @router.post('/refresh')
 async def refresh_token(
-    form_data: OAuth2RefreshRequestForm = Depends(),
+    form_data: security.OAuth2RefreshRequestForm = Depends(),
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
     """
     Endpoint to receive a new access_token by giving a correct refresh_token
     """
 
-    # check if given refresh_token is in db and valid, raises 401 Unauthorized
-    token = crud.validate_refresh_token(form_data.refresh_token, db)
+    # authenticate token / user with given refresh token
+    user = auth.authenticate_user(form_data.refresh_token, db)
 
     # return new token pair (access_token/refresh_token)
-    return crud.create_token_pair(token.user, db)
+    return auth.create_token_pair(user, db)
+
+
+@router.get('/api')
+async def get_api_token(
+    exp: int,
+    sub: str,
+    aud: str,
+    token_str: str = Depends(security.oauth2_scheme),
+    db: Session = Depends(database.get)
+) -> str:
+
+    # TODO discuss security aspects and possible misuses of this
+
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.GOD, db)
+
+    api_token = schemas.Token(
+        exp=exp,
+        sub=sub,
+        aud=aud
+    )
+
+    key_pair = crud.get_random_valid_key_pair(db)
+
+    return auth.encode_token(key_pair, api_token)

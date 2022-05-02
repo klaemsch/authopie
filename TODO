@@ -1,19 +1,26 @@
 Priority:
-- refresh token (JWT or UUID ???)
 - client_id / client_secret
 - CORS
-
+- https://hashnode.com/post/jwt-authentication-in-4-easy-steps-cksd5fmfi06vtu5s1e59e7cya
+- 2 methods called authenticate user (crud.user and dependencies.auth)
+- difference between dep and util
 
 Nice to have:
-- api token management
 - TZ information
-- custom base model with fastapi jsonable_encoder
 - password regex
-- logging
 - JWK x5c/x5t https://stackoverflow.com/questions/69179822/jwk-key-creation-with-x5c-and-x5t-parameters
+- certificate
+- type of keys in KeyPair schema (wait for https://github.com/mpdavis/python-jose/pull/295)
 
 Not yet tested:
+- refresh token (JWT or UUID ???)
+- use scope system to authorize usage of endpoints
+- import users/roles from file
+- export to file
+- api token generation
 
+Not needed:
+- custom base model with fastapi jsonable_encoder
 
 Done:
 ✓ Use Pydantic BaseSetting for Config
@@ -22,7 +29,8 @@ Done:
 ✓ scope system
 ✓ first user admin
 ✓ public key JWK endpoint
-✓ DB Mixin / Base Class
+✓ DB Mixin
+✓ custom logger
 
 Links:
 - https://pyjwt.readthedocs.io/en/stable/usage.html#retrieve-rsa-signing-keys-from-a-jwks-endpoint

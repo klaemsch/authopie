@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-
-from .. import schemas, crud
-from ..dependencies import database, security
+from .. import crud, schemas
+from ..dependencies import auth, database, security
+from ..dependencies.constants import Scopes
 
 router = APIRouter(
     prefix='/role',
@@ -15,7 +15,7 @@ router = APIRouter(
 async def get_role(
     name: str,
     db: Session = Depends(database.get),
-    token: str = Depends(security.oauth2_scheme)
+    token_str: str = Depends(security.oauth2_scheme)
 ) -> schemas.RoleOut:
     """
     searches db for role with given name
@@ -23,7 +23,9 @@ async def get_role(
     failure: raise 404 Not Found
     """
 
-    # TODO AUTH
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_ROLES, db)
 
     return crud.get_role(name, db)
 
@@ -32,7 +34,7 @@ async def get_role(
 async def create_role(
     role: schemas.RoleIn,
     db: Session = Depends(database.get),
-    token: str = Depends(security.oauth2_scheme)
+    token_str: str = Depends(security.oauth2_scheme)
 ) -> schemas.RoleOut:
     """
     checks db for role with given name and then creates role in db
@@ -40,7 +42,9 @@ async def create_role(
     role already exists: raise 409 Conflict
     """
 
-    # TODO AUTH
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_ROLES, db)
 
     return crud.create_role(role, db)
 
@@ -49,7 +53,7 @@ async def create_role(
 async def delete_role(
     name: str,
     db: Session = Depends(database.get),
-    token: str = Depends(security.oauth2_scheme)
+    token_str: str = Depends(security.oauth2_scheme)
 ) -> schemas.RoleOut:
     """
     searches db for role with given name and deletes it
@@ -57,6 +61,8 @@ async def delete_role(
     failure: raise 404 Not Found
     """
 
-    # TODO AUTH
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_ROLES, db)
 
     return crud.delete_role(name, db)

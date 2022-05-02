@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     KEY_PAIR_LIFETIME: int = 10
 
     # audience setting of JWT
-    AUD: str = 'PlenarTV'
+    AUD: str = 'Authopie'
 
     # CORS Settins
     BASE_URLS: list[str] = ['http://localhost:3000']

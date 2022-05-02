@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
@@ -6,14 +6,12 @@ from sqlalchemy.orm import relationship, Session
 from sqlalchemy.types import CHAR, TypeDecorator
 from sqlalchemy.sql import select
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.sqltypes import DateTime, Integer, String
+from sqlalchemy.sql.sqltypes import DateTime, String
+
+from .exceptions import TypeException
 
 from . import schemas
-from .dependencies.database import Base, SessionLocal
-
-# TODO
-db = SessionLocal()
+from .dependencies.database import Base, DBMixin
 
 
 class GUID(TypeDecorator):
@@ -52,7 +50,7 @@ class GUID(TypeDecorator):
             return value
 
 
-class Role(Base):
+class Role(DBMixin, Base):
     __tablename__ = "role"
 
     id = Column(GUID, primary_key=True, index=True, nullable=False)
@@ -73,7 +71,7 @@ class Role(Base):
         return str(self.__dict__)
 
 
-class User(Base):
+class User(DBMixin, Base):
     __tablename__ = "user"
 
     id = Column(GUID, primary_key=True, index=True, nullable=False)
@@ -87,16 +85,17 @@ class User(Base):
     def create(cls, user: schemas.UserInDB, db: Session) -> schemas.UserInDB:
         """
         creates db user with given user schema
-        returns user schema from db TODO necessary???
+        returns user schema from db
         """
 
         if not isinstance(user, schemas.UserInDB):
-            raise Exception('Thats not a UserInDB')
+            raise TypeException(user, schemas.UserInDB)
 
-        # create user roles objects
-        for role in user.roles:
-            db_user_role = UserRole(user_id=user.id, role_id=role.id)
-            db.add(db_user_role)
+        if user.roles is not None:
+            # create user roles objects
+            for role in user.roles:
+                db_user_role = UserRole(user_id=user.id, role_id=role.id)
+                db.add(db_user_role)
 
         # create user object through __init__
         db_user = cls(**user.dict(exclude={'roles'}))
@@ -117,7 +116,7 @@ class User(Base):
         return str(self.__dict__)
 
 
-class UserRole(Base):
+class UserRole(DBMixin, Base):
     __tablename__ = "user_role"
     user_id = Column(
         GUID, ForeignKey("user.id"),
@@ -131,35 +130,7 @@ class UserRole(Base):
     )
 
 
-class RefreshToken(Base):
-    __tablename__ = "refresh_token"
-
-    token = Column(GUID, primary_key=True, index=True, nullable=False)
-    user_id = Column(GUID, ForeignKey("user.id"), nullable=False)
-    exp = Column(Integer)
-
-    user = relationship("User", foreign_keys=[user_id])
-
-    def __init__(self, refresh_token: schemas.RefreshToken):
-        """
-        creates new refresh_token object for database
-        """
-        self.token = refresh_token.token
-        self.user_id = refresh_token.user.id
-        self.exp = refresh_token.exp
-
-    @classmethod
-    def get_by_token(cls, token: str, db: Session) -> 'RefreshToken':
-
-        # find user by username
-        stmt = select(cls).where(cls.token == token)
-        return db.execute(stmt).scalars().first()
-
-    def __str__(self):
-        return str(self.__dict__)
-
-
-class KeyPair(Base):
+class KeyPair(DBMixin, Base):
     __tablename__ = "key_pair"
 
     # Key ID

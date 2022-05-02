@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, status
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
-from .. import schemas, crud
-from ..dependencies import database, security
+from .. import crud, schemas
+from ..dependencies import auth, database, security
+from ..dependencies.constants import Scopes
 
 router = APIRouter(
     prefix='/user',
@@ -14,7 +15,7 @@ router = APIRouter(
 @router.get('', response_model=schemas.UserOut)
 async def get_user(
     username: EmailStr,
-    token: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get),
 ) -> schemas.UserOut:
     """
@@ -24,7 +25,8 @@ async def get_user(
     Auth Failure: 401 Unauthorized
     """
 
-    # TODO AUTH
+    # validates JWT + checks if user in token sub exists
+    auth.authenticate_user(token_str, db)
 
     return crud.get_user(username, db)
 
@@ -36,17 +38,20 @@ async def get_user(
 )
 async def create_user(
     user: schemas.UserIn,
-    token: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """
     checks db for user with given username and then creates user in db
     Success: create user and return it (201 Created)
     user already exists: raise 409 Conflict
-    Auth Failure: 401 Unauthorized
+    AuthN Failure: 401 Unauthorized
+    AuthZ Failure: 403 Forbidden
     """
 
-    # TODO AUTH
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_USERS, db)
 
     return crud.create_user(user, db)
 
@@ -55,7 +60,7 @@ async def create_user(
 async def update_user(
     username: EmailStr,
     user: schemas.UserInUpdate,
-    token: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """
@@ -65,7 +70,9 @@ async def update_user(
     Auth Failure: 401 Unauthorized
     """
 
-    # TODO AUTH
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_USERS, db)
 
     return crud.update_user(username, user, db)
 
@@ -73,7 +80,7 @@ async def update_user(
 @router.delete('', response_model=schemas.UserOut)
 async def delete_user(
     username: EmailStr,
-    token: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """
@@ -83,6 +90,8 @@ async def delete_user(
     Auth Failure: 401 Unauthorized
     """
 
-    # TODO AUTH
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_USERS, db)
 
     return crud.delete_user(username, db)

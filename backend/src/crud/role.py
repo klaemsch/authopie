@@ -17,6 +17,14 @@ def get_role(name: str, db: Session) -> schemas.RoleInDB:
     return schemas.RoleInDB.from_orm(role)
 
 
+def get_all_roles(db: Session) -> list[schemas.RoleInDB]:
+
+    return [
+        schemas.RoleInDB.from_orm(role)
+        for role in models.Role.get_all(db)
+    ]
+
+
 def create_role(role_in: schemas.RoleIn, db: Session) -> schemas.RoleInDB:
 
     # search for given role name in db

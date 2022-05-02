@@ -1,9 +1,12 @@
+from typing import TypeVar
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.sql import select
 
-from ..config import config
-from .. import schemas
+from .. import config, schemas
+from ..exceptions import TypeException
 
 # Docs: https://fastapi.tiangolo.com/tutorial/sql-databases/
 
@@ -17,15 +20,21 @@ engine = create_engine(
 # Pool of Sessions the API can use/create (used in depend in main.py)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+T = TypeVar('T', bound='DBMixin')
 
-class CustomBase:
+
+class DBMixin:
 
     @classmethod
-    def create(cls, schema: schemas.BaseModel, db: Session):
+    def create(
+        cls,
+        schema: schemas.BaseModel,
+        db: Session
+    ) -> schemas.BaseModel:
 
-        # check for correct model (only data model)
+        # check for correct schema (only data schema)
         if not issubclass(schema.__class__, schemas.BaseModel):
-            raise Exception('Thats not a Data Model')
+            raise TypeException(schema, schemas.BaseModel)
 
         try:
             try:
@@ -46,9 +55,18 @@ class CustomBase:
             # TODO except SQLAlchemy
             raise exc
 
+    @classmethod
+    def get_all(
+        cls,
+        db: Session
+    ) -> 'Base':
+
+        stmt = select(cls)
+        return db.execute(stmt).scalars().all()
+
 
 # Base for Table Abstraction in models.py
-Base = declarative_base(cls=CustomBase)
+Base = declarative_base()
 
 
 def get() -> Session:

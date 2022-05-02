@@ -1,12 +1,11 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
 from time import time
-from typing import Optional
 
 from pydantic import (BaseModel, EmailStr, Extra, Field, root_validator,
                       validator)
 
-from .config import config
+from . import config
 
 
 class HashableBaseModel(BaseModel):
@@ -20,7 +19,7 @@ class HashableBaseModel(BaseModel):
 
 class RoleBase(HashableBaseModel):
     name: str
-    scopes: Optional[str] = ''
+    scopes: str | None = ''
 
     def get_scopes_as_list(self) -> list:
         if self.scopes is not None:
@@ -66,12 +65,12 @@ class UserBase(HashableBaseModel):
 class UserIn(UserBase):
     username: EmailStr
     password: str
-    roles: Optional[list[str]] = []
+    roles: list[str] | None = []
 
 
 class UserInUpdate(UserIn):
-    username: Optional[EmailStr]
-    password: Optional[str]
+    username: EmailStr | None
+    password: str | None
 
     @root_validator(skip_on_failure=True)
     def check_for_no_data(cls, values):
@@ -84,13 +83,13 @@ class UserInUpdate(UserIn):
 
 
 class UserOut(UserBase):
-    roles: Optional[list[RoleBase]] = []
+    roles: list[RoleBase] | None = []
 
 
 class UserInDB(UserBase):
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
     hashed_password: str
-    roles: Optional[list[RoleInDB]] = []
+    roles: list[RoleInDB] | None = []
 
     class Config:
         orm_mode = True
@@ -113,7 +112,7 @@ class KeyPair(HashableBaseModel):
     public_key: str                 # PEM encoded public RSA key
     private_key: str                # PEM encoded private RSA key
     exp: datetime                   # exprire date
-    added_at: Optional[datetime]    # datetime of model creation
+    added_at: datetime | None    # datetime of model creation
 
     @validator('added_at', pre=True, always=True)
     def add_added_at(cls, v):
@@ -129,25 +128,25 @@ class KeyPair(HashableBaseModel):
 
 class TokenPair(HashableBaseModel):
     access_token: str  # string encoded jwt
+    refresh_token: str  # string encoded jwt
     token_type: str = 'Bearer'
-    refresh_token: uuid.UUID
 
 
 class Token(HashableBaseModel):
     # issuer
-    iss: Optional[str] = 'authopie'
+    iss: str | None = 'authopie'
     # subject (Auftraggeber)
-    sub: Optional[str] = 'subject'
+    sub: str
     # audience (Empfänger)
-    aud: Optional[str] = config.AUD
+    aud: str | None = config.AUD
     # expiration time
     exp: int
     # not before TODO
-    nbf: Optional[int] = 0
+    nbf: int | None = 0
     # issued at (current timestamp in seconds)
-    iat: Optional[int] = int(time())
+    iat: int | None = int(time())
     # jwt id
-    jti: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4)
+    jti: uuid.UUID | None = Field(default_factory=uuid.uuid4)
     # areas the user has access to
     scopes: list[str] = []
 
@@ -164,8 +163,8 @@ class JWK(HashableBaseModel):
     e: str = 'AQAB'     # public exponent
 
     # TODO: for now optional
-    x5c: Optional[str]  # x.509 certificate chain
-    x5t: Optional[str]  # sha-1 thumbprint of the x.509 cert
+    x5c: str | None  # x.509 certificate chain
+    x5t: str | None  # sha-1 thumbprint of the x.509 cert
 
 
 class JWKS(HashableBaseModel):

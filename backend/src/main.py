@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import crud, logger, schemas
-from .config import config
+from . import config, crud, logger, schemas
 from .dependencies import database
 from .exceptions import EntityAlreadyExistsException
-from .routers import jwks, role, token, user
+from .routers import import_export, jwks, role, token, user
 
 app = FastAPI()
 
@@ -22,6 +21,7 @@ app.include_router(token.router)
 app.include_router(user.router)
 app.include_router(role.router)
 app.include_router(jwks.router)
+app.include_router(import_export.router)
 
 
 @app.on_event("startup")
@@ -30,7 +30,8 @@ async def startup_event():
     logger.debug('StartUp event triggered')
 
     from .dependencies.database import Base, engine
-    Base.metadata.drop_all(engine)
+
+    # Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     db = database.SessionLocal()

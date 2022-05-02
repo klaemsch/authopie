@@ -1,13 +1,13 @@
 from pydantic import ValidationError
 import sys
-import logging
+from src.util import get_logger, test_logger
 
+# initialze custom logging
+logger = get_logger('authopie', 'DEBUG')
+test_logger(logger)
 
 try:
-    from .config import config  # noqa F401
-    # TODO: create own logger
-    logger = logging.getLogger('my_logger')
+    from .config import config  # noqa:F401
 except ValidationError:
-    logger = logging.getLogger('uvicorn.error')
     logger.warn('Corrupt or Incorrect config file')
     sys.exit()
