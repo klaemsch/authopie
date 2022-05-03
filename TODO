@@ -1,7 +1,6 @@
 Priority:
 - client_id / client_secret
 - CORS
-- https://hashnode.com/post/jwt-authentication-in-4-easy-steps-cksd5fmfi06vtu5s1e59e7cya
 - 2 methods called authenticate user (crud.user and dependencies.auth)
 - difference between dep and util
 
@@ -18,6 +17,7 @@ Not yet tested:
 - import users/roles from file
 - export to file
 - api token generation
+- cookie based auth
 
 Not needed:
 - custom base model with fastapi jsonable_encoder
@@ -33,9 +33,4 @@ Done:
 ✓ custom logger
 
 Links:
-- https://pyjwt.readthedocs.io/en/stable/usage.html#retrieve-rsa-signing-keys-from-a-jwks-endpoint
-- https://www.geocerts.com/certificate-decoder
-- https://certificatetools.com/
-- https://datatracker.ietf.org/doc/html/rfc7517
-- https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-key-set-properties
-- https://jwt.io/#debugger-io
+- https://nilsdebruin.medium.com/fastapi-how-to-add-basic-and-cookie-authentication-a45c85ef47d3
