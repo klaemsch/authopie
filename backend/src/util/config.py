@@ -40,6 +40,13 @@ class Settings(BaseSettings):
     # root path for proxy
     ROOT_PATH: str = '/auth'
 
+    # TODO for TESTING
+    COOKIE_SAMESITE: str = 'None'
+    COOKIE_SECURE: bool = True
+    COOKIE_HTTPONLY: bool = True
+    COOKIE_MAX_AGE: int = 30
+    COOKIE_DOMAIN: str = '/'
+
 
 def load_config():
     if not path.exists('./config.json'):
@@ -47,7 +54,3 @@ def load_config():
     with open('./config.json', 'r') as fh:
         data = json.load(fh)
     return Settings.parse_obj(data)
-
-
-# default
-config = load_config()
