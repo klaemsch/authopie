@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from fastapi.encoders import jsonable_encoder
 from jose import jws, jwt
-from jose.exceptions import JWTError
+from jose.exceptions import JWTError, JWSError
 from sqlalchemy.orm import Session
 
 from .. import config, crud, logger, schemas
@@ -166,6 +166,10 @@ def validate_jwt(token: str, db: Session) -> schemas.Token:
     failure: raises 401 Unauthorized
     """
 
+    if not isinstance(token, str):
+        logger.warn('JWT validation failed - not a string')
+        raise TokenValidationFailedException
+
     try:
 
         # load kid of key that signed given key
@@ -192,7 +196,7 @@ def validate_jwt(token: str, db: Session) -> schemas.Token:
         )
         token = schemas.Token.parse_obj(decoded_token)
         return token
-    except JWTError as exc:
+    except (JWTError, JWSError) as exc:
         logger.warn(exc)
         raise TokenValidationFailedException
 

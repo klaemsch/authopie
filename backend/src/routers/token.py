@@ -1,10 +1,12 @@
+from fastapi.params import Cookie
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from .. import crud, logger, schemas
-from ..dependencies import auth, database, security
-from ..exceptions import IncorrectCredentialsException
+from .. import crud, logger, schemas, util
+from ..dependencies import auth, database, security, cookie
 from ..dependencies.constants import Scopes
+from ..exceptions import IncorrectCredentialsException
 
 router = APIRouter(
     prefix='/token',
@@ -14,6 +16,7 @@ router = APIRouter(
 
 @router.post('', response_model=schemas.TokenPair)
 async def login_for_token(
+    response: Response,
     form_data: security.MyOAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
@@ -36,12 +39,21 @@ async def login_for_token(
         logger.debug('Incorrect username or password...')
         raise IncorrectCredentialsException
 
-    # return new token pair (access_token/refresh_token)
-    return auth.create_token_pair(user, db)
+    # create new token pair (access_token/refresh_token)
+    token_pair = auth.create_token_pair(user, db)
+
+    # add cookie for access_token
+    cookie.set_cookie(response, 'access_token', token_pair.access_token)
+
+    # add cookie for refresh_token
+    cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
+
+    return token_pair
 
 
 @router.post('/refresh')
 async def refresh_token(
+    response: Response,
     form_data: security.OAuth2RefreshRequestForm = Depends(),
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
@@ -52,8 +64,16 @@ async def refresh_token(
     # authenticate token / user with given refresh token
     user = auth.authenticate_user(form_data.refresh_token, db)
 
-    # return new token pair (access_token/refresh_token)
-    return auth.create_token_pair(user, db)
+    # create new token pair (access_token/refresh_token)
+    token_pair = auth.create_token_pair(user, db)
+
+    # add cookie for access_token
+    cookie.set_cookie(response, 'access_token', token_pair.access_token)
+
+    # add cookie for refresh_token
+    cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
+
+    return token_pair
 
 
 @router.get('/api')
