@@ -1,3 +1,13 @@
+"""
+Scopes for authorizing tokens/users
+(permission management)
+"""
+
+from pydantic import EmailStr
+import pydantic
+from .. import config
+
+
 class Scope:
     """
     Class for comparing required Scopes against scopes in a token
@@ -40,3 +50,20 @@ class Scopes:
     GOD = Scope('*')
     MANAGE_USERS = Scope('manage-users', '*')
     MANAGE_ROLES = Scope('manage-roles', '*')
+
+
+# Type for username is defined by config
+# -> either a valid email or a string
+if config.USERNAME_IS_EMAIL:
+    Username = EmailStr
+else:
+    Username = str
+
+# Type for password is defined by config
+# -> either a str or a string with regex
+if config.PASSWORD_REGEX:
+    Password = pydantic.constr(
+        regex="""^(?=.*?[A-Z])
+        (?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$""")
+else:
+    Password = str

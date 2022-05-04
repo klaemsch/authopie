@@ -1,10 +1,12 @@
+""" GET user, POST user, PUT user, DELETE user """
+
 from fastapi import APIRouter, Depends, status
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from .. import crud, schemas
-from ..dependencies import auth, database, security
-from ..dependencies.constants import Scopes
+from ..dependencies import database
+from ..util import auth, security
+from ..util.constants import Scopes, Username
 
 router = APIRouter(
     prefix='/user',
@@ -14,7 +16,7 @@ router = APIRouter(
 
 @router.get('', response_model=schemas.UserOut)
 async def get_user(
-    username: EmailStr,
+    username: Username,
     token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get),
 ) -> schemas.UserOut:
@@ -58,7 +60,7 @@ async def create_user(
 
 @router.put('', response_model=schemas.UserOut)
 async def update_user(
-    username: EmailStr,
+    username: Username,
     user: schemas.UserInUpdate,
     token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get)
@@ -79,7 +81,7 @@ async def update_user(
 
 @router.delete('', response_model=schemas.UserOut)
 async def delete_user(
-    username: EmailStr,
+    username: Username,
     token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:

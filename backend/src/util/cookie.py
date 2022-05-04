@@ -1,9 +1,14 @@
+""" set cookies in response to client """
+
 from fastapi.responses import Response
 
 from .. import config
 
 
 def set_cookie(response: Response, key: str, value: str) -> None:
+    """ set cookies in given response """
+
+    # TODO: should all values be set by config?
     response.set_cookie(
         key=key,
         value=value,

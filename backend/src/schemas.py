@@ -2,10 +2,10 @@ import uuid
 from datetime import datetime
 from time import time
 
-from pydantic import (BaseModel, EmailStr, Extra, Field, root_validator,
-                      validator)
+from pydantic import BaseModel, Extra, Field, root_validator, validator
 
 from . import config
+from .util.constants import Username, Password
 
 
 class HashableBaseModel(BaseModel):
@@ -20,15 +20,6 @@ class HashableBaseModel(BaseModel):
 class RoleBase(HashableBaseModel):
     name: str
     scopes: str | None = ''
-
-    def get_scopes_as_list(self) -> list:
-        if self.scopes is not None:
-            return self.scopes.split(' ')
-        return []
-
-    def set_scopes_from_list(self, scopes: list) -> str:
-        self.scopes = ' '.join(scopes)
-        return self.scopes
 
     @validator('scopes')
     def every_scope_only_once(cls, v):
@@ -59,18 +50,18 @@ class RoleInDB(RoleBase):
 
 
 class UserBase(HashableBaseModel):
-    username: EmailStr
+    username: Username
 
 
 class UserIn(UserBase):
-    username: EmailStr
-    password: str
+    username: Username
+    password: Password
     roles: list[str] | None = []
 
 
 class UserInUpdate(UserIn):
-    username: EmailStr | None
-    password: str | None
+    username: Username | None
+    password: Password | None
 
     @root_validator(skip_on_failure=True)
     def check_for_no_data(cls, values):

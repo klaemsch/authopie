@@ -19,5 +19,7 @@
     "COOKIE_SECURE": true,
     "COOKIE_HTTPONLY": true,
     "COOKIE_MAX_AGE": 30,
-    "COOKIE_DOMAIN": "127.0.0.1"
+    "COOKIE_DOMAIN": "127.0.0.1",
+    "PASSWORD_REGEX": false,
+    "USERNAME_IS_EMAIL": false
 }

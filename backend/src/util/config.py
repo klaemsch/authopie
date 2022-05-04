@@ -1,3 +1,5 @@
+""" load config from file """
+
 import json
 from os import path
 from pathlib import Path
@@ -46,6 +48,17 @@ class Settings(BaseSettings):
     COOKIE_HTTPONLY: bool = True
     COOKIE_MAX_AGE: int = 30
     COOKIE_DOMAIN: str = '/'
+
+    # turn password regex on
+    # -> min 8 digits
+    # -> at least one upper case
+    # -> at least one lower case
+    # -> at least one special character
+    # -> at least one number
+    PASSWORD_REGEX: bool = False
+
+    # if true username has to be an email -> will be enforced
+    USERNAME_IS_EMAIL: bool = True
 
 
 def load_config():

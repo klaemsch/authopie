@@ -1,6 +1,48 @@
-# Authopie - A small scale, performant, authentification service, written with FastAPI
+# Authopie - A small scale, performant, authentification and authorization service, written with FastAPI
 
-## Deployment
+# Advantages
+- simple
+- small scale
+- single application
+- runs out of the box (no db needed)
+
+# Features
+- user/role management
+- JWT with RSA private/public key signature
+- jwks endpoint for client-side verification
+- password hashing with bcrypt
+- api key generation
+- permission management with scopes
+
+# Structure
+
+## Routers
+- ``user.py``: GET user, POST user, PUT user, DELETE user
+- ``role.py``: GET role, POST role, DELETE role
+- ``token.py``: generate and renew token pair (access_token/refresh_token), generate api token (JWT)
+- ``jwks.py``: provides endpoint (``/.well-known/jwks.json``) for jwks retrieval
+- ``import_export.py``: export users/roles from db to json, import users/roles from json to db
+
+## crud
+- ``key_pairs.py``: create new key pairs (private/public) in db, get key pairs from db
+- ``role.py``: create, delete and get roles from/in db
+- ``user.py``: create, delete, update and get roles from/in db
+
+## util
+utils are methods, models or classes used by authopie to make life simpler, like logging, loading configs from file, or setting cookies to a response
+- ``auth.py``: create tokens, validate tokens, authorize and authenticate user via token
+- ``constants.py``: Scopes for authorizing tokens/users (permission management) TODO??
+- ``pwdhash.py``: hash password, compare password to hash from db
+- ``config.py``: load config from file
+- ``logger.py``: get and test custom logger
+- ``cookie.py``: set cookies in response to client
+- ``security.py``: classes for swagger integration?? TODO
+
+## dependencies
+dependencies are methods, models or classes, that endpoints to depend on, fastapi loads them with the request
+- ``database.py``: SQLAlchemy configuration, Mixin for creating database elements, get connection to database
+
+# Deployment
 
 1. PULL
 ```
@@ -11,7 +53,14 @@ docker pull ghcr.io/klaemsch/authopie:latest
 docker run --network ptv -d --restart unless-stopped --name ptv-auth -p 5555:5555 -v /path-to-config/config.json:/authopie/config.json ghcr.io/klaemsch/authopie:latest
 ```
 
-## Useful Links
+# Publishing image to ghcr
+```
+docker build . -t ghcr.io/klaemsch/authopie:latest -t ghcr.io/klaemsch/authopie:v0.2
+echo $CR_PAT | docker login ghcr.io
+docker push --all-tags ghcr.io/klaemsch/authopie
+```
+
+# Useful Links
 
 for cookies
 - https://github.com/tiangolo/fastapi/issues/480

@@ -1,11 +1,16 @@
-from typing import TypeVar
+"""
+SQLAlchemy configuration,
+Mixin for creating database elements,
+get connection to database
+"""
 
 from sqlalchemy import create_engine
+import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.sql import select
 
-from .. import config, schemas
+from .. import config, schemas, logger
 from ..exceptions import TypeException
 
 # Docs: https://fastapi.tiangolo.com/tutorial/sql-databases/
@@ -19,8 +24,6 @@ engine = create_engine(
 
 # Pool of Sessions the API can use/create (used in depend in main.py)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-T = TypeVar('T', bound='DBMixin')
 
 
 class DBMixin:
@@ -51,8 +54,11 @@ class DBMixin:
             db.refresh(db_model)
             # create schema from db model
             return schema.__class__.from_orm(db_model)
-        except Exception as exc:
+        except sqlalchemy.exc.SQLAlchemyError as exc:
+            logger.warning('DB Create thrown SQLAlchemyError')
             # TODO except SQLAlchemy
+            raise exc
+        except Exception as exc:
             raise exc
 
     @classmethod

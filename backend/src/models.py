@@ -12,6 +12,7 @@ from .exceptions import TypeException
 
 from . import schemas
 from .dependencies.database import Base, DBMixin
+from .util.constants import Username
 
 
 class GUID(TypeDecorator):
@@ -106,7 +107,7 @@ class User(DBMixin, Base):
         return schemas.UserInDB.from_orm(db_user)
 
     @classmethod
-    def get_by_username(cls, username: str, db: Session) -> 'User':
+    def get_by_username(cls, username: Username, db: Session) -> 'User':
 
         # find user by username
         stmt = select(cls).where(cls.username == username)

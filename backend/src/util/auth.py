@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from fastapi.encoders import jsonable_encoder
 from jose import jws, jwt
-from jose.exceptions import JWTError, JWSError
+from jose.exceptions import JWSError, JWTError
 from sqlalchemy.orm import Session
 
 from .. import config, crud, logger, schemas
@@ -10,8 +10,6 @@ from ..exceptions import (ActionForbiddenException,
                           EntityDoesNotExistException,
                           TokenValidationFailedException, TypeException)
 from .constants import Scopes
-
-# TODO: discuss if this file should be called otherwise (perhaps security)
 
 
 def calculate_token_exp(expires_in: timedelta):

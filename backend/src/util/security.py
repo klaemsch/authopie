@@ -2,19 +2,19 @@ from fastapi.requests import Request
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.param_functions import Form
 from fastapi.security import OAuth2
-from pydantic import EmailStr
+from .constants import Username, Password
 from ..exceptions import TokenValidationFailedException
 
-PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$"
 
+# TODO: split into depends and not depends
 
 class MyOAuth2PasswordRequestForm:
 
     def __init__(
         self,
         grant_type: str = Form(..., regex="password"),
-        username: EmailStr = Form(...),
-        password: str = Form(...),
+        username: Username = Form(...),
+        password: Password = Form(...),
         scope: str = Form(""),
         client_id: str | None = Form(None),
         client_secret: str | None = Form(None),

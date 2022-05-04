@@ -6,11 +6,16 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from sqlalchemy.orm import Session
 
-from .. import config, models, schemas
+from .. import config, logger, models, schemas
 from ..exceptions import EntityDoesNotExistException
 
 
 def get_key_pair(kid: str, db: Session) -> schemas.KeyPair:
+    """
+    get key pair from db by key id
+    Success: return KeyPair
+    Failure (no key pair with kid): raise EntityDoesNotExistException
+    """
 
     # find key_pair by kid
     key_pair: models.KeyPair = models.KeyPair.get_by_kid(kid, db)
@@ -22,6 +27,10 @@ def get_key_pair(kid: str, db: Session) -> schemas.KeyPair:
 
 
 def get_valid_key_pairs(db: Session) -> list[schemas.KeyPair]:
+    """
+    get all valid key pairs from db
+    Success: return a list of all KeyPair
+    """
 
     return [
         schemas.KeyPair.from_orm(key_pair)
@@ -30,8 +39,15 @@ def get_valid_key_pairs(db: Session) -> list[schemas.KeyPair]:
 
 
 def get_random_valid_key_pair(db: Session) -> schemas.KeyPair:
+    """
+    get a random valid key pair from db
+    Success: returns a random KeyPair
+    (if no key pair exists -> create a new one and return it)
+    """
+
     keys = get_valid_key_pairs(db)
     if len(keys) == 0:
+        logger.debug('No KeyPair found. Creating a new one...')
         # if no key pair exists -> create key pair and return it
         return create_key_pair(db)
     return random.choice(keys)
@@ -50,6 +66,7 @@ def calculate_token_exp():
 def create_key_pair(db: Session) -> schemas.KeyPair:
     """
     Generates a new rsa key pair and saves it to db
+    Success: returns a new KeyPair
     """
 
     # seach if there are valid key pairs in db
@@ -89,6 +106,7 @@ def create_key_pair(db: Session) -> schemas.KeyPair:
     # calculate expire date
     exp = datetime.utcnow() + timedelta(days=config.KEY_PAIR_LIFETIME*365)
 
+    # new key pair schema with kid and expire date
     key_pair = schemas.KeyPair(
         kid=secrets.token_urlsafe(),
         private_key=private_key_pem,
@@ -96,4 +114,9 @@ def create_key_pair(db: Session) -> schemas.KeyPair:
         exp=exp
     )
 
-    return models.KeyPair.create(key_pair, db)
+    # save new key pair to db
+    key_pair: schemas.KeyPair = models.KeyPair.create(key_pair, db)
+
+    logger.debug(f'KeyPair {key_pair.kid} was successfuly created')
+
+    return key_pair

@@ -1,11 +1,14 @@
-from fastapi.params import Cookie
+""" GET TOKEN, UPDATE TOKEN, GET API TOKEN """
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from .. import crud, logger, schemas, util
-from ..dependencies import auth, database, security, cookie
-from ..dependencies.constants import Scopes
+from ..util import auth, security, cookie
+
+from .. import crud, logger, schemas
+from ..dependencies import database
+from ..util.constants import Scopes
 from ..exceptions import IncorrectCredentialsException
 
 router = APIRouter(
@@ -58,7 +61,9 @@ async def refresh_token(
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
     """
-    Endpoint to receive a new access_token by giving a correct refresh_token
+    Generate a new token pair by giving a correct refresh_token
+    Success: returns TokenPair (access_token + refresh_token)
+    Failure: Returns 401 Unauthorized
     """
 
     # authenticate token / user with given refresh token
@@ -68,10 +73,11 @@ async def refresh_token(
     token_pair = auth.create_token_pair(user, db)
 
     # add cookie for access_token
-    cookie.set_cookie(response, 'access_token', token_pair.access_token)
+    cookie.cookie.set_cookie(response, 'access_token', token_pair.access_token)
 
     # add cookie for refresh_token
-    cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
+    cookie.cookie.set_cookie(response, 'refresh_token',
+                             token_pair.refresh_token)
 
     return token_pair
 
@@ -84,6 +90,12 @@ async def get_api_token(
     token_str: str = Depends(security.oauth2_scheme),
     db: Session = Depends(database.get)
 ) -> str:
+    """
+    Generates a new API-Token (JWT)
+    Success: returns API-Token (JWT) as str
+    AuthN Failure: Returns 401 Unauthorized
+    AuthZ Failure: Returns 403 Forbidden
+    """
 
     # TODO discuss security aspects and possible misuses of this
 
