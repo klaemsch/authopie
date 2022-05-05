@@ -1,3 +1,4 @@
+from unicodedata import name
 import uuid
 from datetime import datetime
 from time import time
@@ -5,7 +6,7 @@ from time import time
 from pydantic import BaseModel, Extra, Field, root_validator, validator
 
 from . import config
-from .util.constants import Username, Password
+from .utils.constants import Username, Password
 
 
 class HashableBaseModel(BaseModel):
@@ -33,6 +34,19 @@ class RoleBase(HashableBaseModel):
 
 class RoleIn(RoleBase):
     pass
+
+
+class RoleInUpdate(RoleIn):
+    name: str | None
+    scopes: str | None
+
+    @root_validator(skip_on_failure=True)
+    def check_for_no_data(cls, values):
+        name_check = values['name'] is None
+        scope_check = values['scopes'] is None
+        if all([name_check, scope_check]):
+            raise ValueError('No data received')
+        return values
 
 
 class RoleOut(RoleBase):

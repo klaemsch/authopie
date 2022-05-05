@@ -59,6 +59,48 @@ def create_role(role_in: schemas.RoleIn, db: Session) -> schemas.RoleInDB:
     return models.Role.create(new_role, db)
 
 
+def update_role(
+    name: str,
+    role_update: schemas.RoleInUpdate,
+    db: Session
+) -> schemas.RoleInDB:
+    """
+    update existing role in db from RoleInUpdate (name, scopes)
+    Success: return RoleInDB
+    Failure (name not in db): raise EntityDoesNotExistException
+    """
+
+    # check if role exists
+    db_role = models.Role.get_by_name(name, db)
+
+    if db_role is None:
+        # role not found -> raise 404 Not Found
+        raise EntityDoesNotExistException('Role')
+
+    if role_update.name is not None:
+        try:
+            # check for role with new updated name
+            get_role(role_update.name, db)
+            # role with name already exists
+            raise EntityAlreadyExistsException('Role')
+        except EntityDoesNotExistException:
+            # update name in model
+            db_role.name = role_update.name
+
+    if role_update.scopes is not None:
+        # update scopes in model
+        db_role.scopes = role_update.scopes
+
+    # commit local changes to database
+    db.commit()
+    # refresh local role by pulling from database
+    db.refresh(db_role)
+
+    logger.debug(f'Role {db_role.name} was successfuly updated')
+
+    return schemas.RoleInDB.from_orm(db_role)
+
+
 def delete_role(name: str, db: Session) -> schemas.RoleInDB:
     """
     delete existing role in db by name

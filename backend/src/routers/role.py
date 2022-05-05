@@ -2,11 +2,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from ..util import auth, security
-
 from .. import crud, schemas
-from ..dependencies import database
-from ..util.constants import Scopes
+from ..dependencies import database, security
+from ..utils import auth
+from ..utils.constants import Scopes
 
 router = APIRouter(
     prefix='/role',
@@ -14,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get('', response_model=schemas.RoleOut)
+@router.get('/{name}', response_model=schemas.RoleOut)
 async def get_role(
     name: str,
     db: Session = Depends(database.get),
@@ -31,6 +30,23 @@ async def get_role(
     auth.authorize_user(token, Scopes.MANAGE_ROLES, db)
 
     return crud.get_role(name, db)
+
+
+@router.get('', response_model=list[schemas.RoleOut])
+async def get_all_roles(
+    db: Session = Depends(database.get),
+    token_str: str = Depends(security.oauth2_scheme)
+) -> list[schemas.RoleOut]:
+    """
+    success: returns all roles in db
+    failure: raise 404 Not Found
+    """
+
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_ROLES, db)
+
+    return crud.get_all_roles(db)
 
 
 @router.post('', response_model=schemas.RoleOut)
@@ -52,7 +68,28 @@ async def create_role(
     return crud.create_role(role, db)
 
 
-@router.delete('', response_model=schemas.RoleOut)
+@router.put('/{name}', response_model=schemas.RoleOut)
+async def update_role(
+    name: str,
+    role: schemas.RoleInUpdate,
+    token_str: str = Depends(security.oauth2_scheme),
+    db: Session = Depends(database.get)
+) -> schemas.RoleOut:
+    """
+    Update data of existing role
+    success: data updated, return role
+    role does not exists: raise 404 Not Found
+    Auth Failure: 401 Unauthorized
+    """
+
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_ROLES, db)
+
+    return crud.update_role(name, role, db)
+
+
+@router.delete('/{name}', response_model=schemas.RoleOut)
 async def delete_role(
     name: str,
     db: Session = Depends(database.get),

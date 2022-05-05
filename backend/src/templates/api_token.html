@@ -1,0 +1,80 @@
+{% extends "shared/nav.html" %}
+
+{% block title %}API TOKEN{% endblock %}
+
+{% block scripts %}
+<script>
+
+    document.getElementById('genForm').onsubmit = generateApiToken;
+    document.getElementById('copyButton').addEventListener("click", copyTokenToClipboard);
+
+    let token = "";
+
+    function generateApiToken(event) {
+        event.preventDefault();
+        var sub = document.getElementById("sub").value;
+        var aud = document.getElementById("aud").value;
+        var exp = document.getElementById("exp").value;
+        var result = document.getElementById("result");
+
+        let url = "{{ link_to_gen }}" + "?sub=" + sub + "&aud=" + aud + "&exp=" + exp;
+
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+        }).catch(error => {
+            console.warn(error);
+        }).then(response => response.json()
+        ).then(responseJSON => {
+            document.getElementById("result").hidden = false;
+            document.getElementById("copyButton").hidden = false;
+            result.innerText = responseJSON;
+            token = responseJSON;
+        });
+    }
+
+    function copyTokenToClipboard() {
+        navigator.clipboard.writeText(token);
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .break-text {
+        word-break: break-all;
+    }
+</style>
+
+<div class="container">
+    <h1 class="display-4">API TOKEN</h1>
+    <p>Here you can generate a new API Token: </p>
+    <form id="genForm">
+        <div class="form-group">
+            <label for="sub">sub</label>
+            <input type="text" class="form-control" id="sub" placeholder="sub" required>
+            <small id="subHelp" class="form-text text-muted">Subject the token is meant for.</small>
+        </div>
+        <div class="form-group">
+            <label for="aud">aud</label>
+            <input type="text" class="form-control" id="aud" placeholder="aud" required>
+            <small id="audHelp" class="form-text text-muted">Audience the token is meant for.</small>
+        </div>
+        <div class="form-group">
+            <label for="exp">exp</label>
+            <input type="text" class="form-control" id="exp" placeholder="exp" required>
+            <small id="expHelp" class="form-text text-muted">Time at wich token should expire.</small>
+        </div>
+        <button id="generateButton" type="submit" class="btn btn-primary">Generate</button>
+    </form>
+    <br>
+    <hr>
+    <p id="result" hidden class="break-text"></p>
+    <button id="copyButton" hidden class="btn btn-secondary">Copy</button>
+
+</div>
+{% endblock %}

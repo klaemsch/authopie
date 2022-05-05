@@ -12,7 +12,7 @@ from .exceptions import TypeException
 
 from . import schemas
 from .dependencies.database import Base, DBMixin
-from .util.constants import Username
+from .utils.constants import Username
 
 
 class GUID(TypeDecorator):

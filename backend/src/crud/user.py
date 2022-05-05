@@ -5,8 +5,8 @@ from .. import logger, models, schemas
 from ..exceptions import (EntityAlreadyExistsException,
                           EntityDoesNotExistException,
                           IncorrectCredentialsException)
-from ..util import pwdhash
-from ..util.constants import Password, Username
+from ..utils import pwdhash
+from ..utils.constants import Password, Username
 from .role import get_role
 
 
@@ -90,7 +90,7 @@ def update_user(
     Failure (username not in db): raise EntityDoesNotExistException
     """
 
-    # check if user exists, raises 404 Not Found if ID invalid
+    # check if user exists
     db_user = models.User.get_by_username(username, db)
 
     if db_user is None:

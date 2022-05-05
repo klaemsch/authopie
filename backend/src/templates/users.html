@@ -1,0 +1,26 @@
+{% set trigger = request.url.path.split('/')[-1] == 'users' %}
+
+{% if trigger %}
+{% extends "shared/nav.html" %}
+{% block title %}Users{% endblock %}
+{% endif %}
+
+{% block content %}
+<div class="container">
+    <h1 class="display-4">Users</h1>
+    <table class="table">
+        <th>username</th>
+        <th>roles</th>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>
+                {% for role in user.roles %}
+                {% set cur = 1 %}
+                {{role.name}}
+                {% if cur < user.roles|length %} , {% endif %} {% set cur=cur + 1 %} {% endfor %} </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

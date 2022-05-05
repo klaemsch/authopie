@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from .. import crud, schemas
-from ..dependencies import database
-from ..util import auth, security
-from ..util.constants import Scopes, Username
+from ..dependencies import database, security
+from ..utils import auth
+from ..utils.constants import Scopes, Username
 
 router = APIRouter(
     prefix='/user',
@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get('', response_model=schemas.UserOut)
+@router.get('/{username}', response_model=schemas.UserOut)
 async def get_user(
     username: Username,
     token_str: str = Depends(security.oauth2_scheme),
@@ -28,9 +28,29 @@ async def get_user(
     """
 
     # validates JWT + checks if user in token sub exists
-    auth.authenticate_user(token_str, db)
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_USERS, db)
 
     return crud.get_user(username, db)
+
+
+@router.get('', response_model=list[schemas.UserOut])
+async def get_all_users(
+    token_str: str = Depends(security.oauth2_scheme),
+    db: Session = Depends(database.get),
+) -> list[schemas.UserOut]:
+    """
+    success: returns all users in db
+    Auth Failure: 401 Unauthorized
+    """
+
+    # validates JWT + checks if user in token sub exists
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_USERS, db)
+
+    return crud.get_all_users(db)
 
 
 @router.post(
@@ -58,7 +78,7 @@ async def create_user(
     return crud.create_user(user, db)
 
 
-@router.put('', response_model=schemas.UserOut)
+@router.put('/{username}', response_model=schemas.UserOut)
 async def update_user(
     username: Username,
     user: schemas.UserInUpdate,
@@ -68,7 +88,7 @@ async def update_user(
     """
     Update data of existing user
     success: data updated, return user
-    user already exists: raise 404 Not Found
+    user does not exists: raise 404 Not Found
     Auth Failure: 401 Unauthorized
     """
 
@@ -79,7 +99,7 @@ async def update_user(
     return crud.update_user(username, user, db)
 
 
-@router.delete('', response_model=schemas.UserOut)
+@router.delete('/{username}', response_model=schemas.UserOut)
 async def delete_user(
     username: Username,
     token_str: str = Depends(security.oauth2_scheme),

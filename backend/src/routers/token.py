@@ -1,14 +1,14 @@
 """ GET TOKEN, UPDATE TOKEN, GET API TOKEN """
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response
+from fastapi.responses import Response, RedirectResponse
 from sqlalchemy.orm import Session
 
-from ..util import auth, security, cookie
+from ..utils import auth, cookie
 
 from .. import crud, logger, schemas
-from ..dependencies import database
-from ..util.constants import Scopes
+from ..dependencies import database, security
+from ..utils.constants import Scopes
 from ..exceptions import IncorrectCredentialsException
 
 router = APIRouter(
@@ -20,7 +20,7 @@ router = APIRouter(
 @router.post('', response_model=schemas.TokenPair)
 async def login_for_token(
     response: Response,
-    form_data: security.MyOAuth2PasswordRequestForm = Depends(),
+    form_data: security.LoginRequestForm = Depends(),
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
     """
@@ -29,6 +29,8 @@ async def login_for_token(
     Success: returns TokenPair (access_token + refresh_token)
     Failure: Returns 401 Unauthorized
     """
+
+    print(form_data.username, form_data.password)
 
     # check username and password
     user = crud.authenticate_user(
@@ -57,7 +59,7 @@ async def login_for_token(
 @router.post('/refresh')
 async def refresh_token(
     response: Response,
-    form_data: security.OAuth2RefreshRequestForm = Depends(),
+    form_data: security.RefreshRequestForm = Depends(),
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
     """
@@ -73,11 +75,10 @@ async def refresh_token(
     token_pair = auth.create_token_pair(user, db)
 
     # add cookie for access_token
-    cookie.cookie.set_cookie(response, 'access_token', token_pair.access_token)
+    cookie.set_cookie(response, 'access_token', token_pair.access_token)
 
     # add cookie for refresh_token
-    cookie.cookie.set_cookie(response, 'refresh_token',
-                             token_pair.refresh_token)
+    cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
 
     return token_pair
 
@@ -112,3 +113,17 @@ async def get_api_token(
     key_pair = crud.get_random_valid_key_pair(db)
 
     return auth.encode_token(key_pair, api_token)
+
+
+@router.get('/logout')
+async def logout():
+    """
+    log out user by deleting their cookies
+    TODO: route path is currently /token/logout,
+    but maybe /logout would be better
+    """
+
+    response = RedirectResponse(url='/')
+    cookie.delete_cookie(response, 'access_token')
+    cookie.delete_cookie(response, 'refresh_token')
+    return response

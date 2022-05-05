@@ -36,11 +36,11 @@ utils are methods, models or classes used by authopie to make life simpler, like
 - ``config.py``: load config from file
 - ``logger.py``: get and test custom logger
 - ``cookie.py``: set cookies in response to client
-- ``security.py``: classes for swagger integration?? TODO
 
 ## dependencies
 dependencies are methods, models or classes, that endpoints to depend on, fastapi loads them with the request
 - ``database.py``: SQLAlchemy configuration, Mixin for creating database elements, get connection to database
+- ``security.py``: login/refresh form classes + oauth2 integration for swagger (exports JWT from cookie)
 
 # Deployment
 

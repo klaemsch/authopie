@@ -1,33 +1,35 @@
 from fastapi.requests import Request
-from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
-from fastapi.param_functions import Form
-from fastapi.security import OAuth2
-from .constants import Username, Password
 from ..exceptions import TokenValidationFailedException
+from fastapi.security import OAuth2
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
+from ..utils.constants import Username, Password
+from fastapi.param_functions import Form
 
 
-# TODO: split into depends and not depends
-
-class MyOAuth2PasswordRequestForm:
+class LoginRequestForm:
+    """
+    Implements HTML-Form for login.
+    user sends username and password along side the grant_type password
+    Not quite OAuth2 conform
+    TODO: dicsuss grant_type
+    """
 
     def __init__(
         self,
-        grant_type: str = Form(..., regex="password"),
+        # grant_type: str = Form(..., regex="password"),
         username: Username = Form(...),
-        password: Password = Form(...),
-        scope: str = Form(""),
-        client_id: str | None = Form(None),
-        client_secret: str | None = Form(None),
+        password: Password = Form(...)
     ):
-        self.grant_type = grant_type
+        # self.grant_type = grant_type
         self.username = username
         self.password = password
-        self.scopes = scope.split()
-        self.client_id = client_id
-        self.client_secret = client_secret
 
 
-class OAuth2RefreshRequestForm:
+class RefreshRequestForm:
+    """
+    TODO useful??
+    Not quite OAuth2 conform
+    """
 
     def __init__(
         self,
@@ -39,6 +41,8 @@ class OAuth2RefreshRequestForm:
 
 
 class OAuth2PasswordBearerWithCookie(OAuth2):
+    """ This makes this funny swagger pop up for auth """
+
     def __init__(
         self,
         tokenUrl: str,
@@ -67,6 +71,5 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
 oauth2_scheme = OAuth2PasswordBearerWithCookie(
     tokenUrl="token",
     scheme_name='test',
-    scopes={'a': 'b'},
     description='testtest'
 )

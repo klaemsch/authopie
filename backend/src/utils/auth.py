@@ -166,6 +166,7 @@ def validate_jwt(token: str, db: Session) -> schemas.Token:
 
     if not isinstance(token, str):
         logger.warn('JWT validation failed - not a string')
+        print(type(token))
         raise TokenValidationFailedException
 
     try:

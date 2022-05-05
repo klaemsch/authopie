@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     LOG_LEVEL = 'debug'
 
     # first user to be created (admin)
-    DEFAULT_USER_USERNAME: str = 'authopie@authopie.com'
-    DEFAULT_USER_PASSWORD: str = 'authopie'
+    DEFAULT_USER_USERNAME: str
+    DEFAULT_USER_PASSWORD: str
 
     # first role to be created (admin)
     DEFAULT_ROLE_NAME: str = 'authopie-admin'
@@ -37,7 +37,8 @@ class Settings(BaseSettings):
     AUD: str = 'Authopie'
 
     # CORS Settins
-    BASE_URLS: list[str] = ['http://localhost:3000']
+    ORIGINS: list[str] = ['http://localhost:3000']
+    ALLOWED_HEADERS: list[str] = ['Cookies']
 
     # root path for proxy
     ROOT_PATH: str = '/auth'
@@ -48,6 +49,7 @@ class Settings(BaseSettings):
     COOKIE_HTTPONLY: bool = True
     COOKIE_MAX_AGE: int = 30
     COOKIE_DOMAIN: str = '/'
+    COOKIE_PATH: str = '/'
 
     # turn password regex on
     # -> min 8 digits
@@ -59,6 +61,9 @@ class Settings(BaseSettings):
 
     # if true username has to be an email -> will be enforced
     USERNAME_IS_EMAIL: bool = True
+
+    # wether config should be behind auth or not
+    SECURE_DOCS: bool = True
 
 
 def load_config():

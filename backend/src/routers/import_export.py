@@ -7,11 +7,10 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
-from ..util import auth, security
-
 from .. import crud, logger, models, schemas
-from ..dependencies import database
-from ..util.constants import Scopes
+from ..dependencies import database, security
+from ..utils import auth
+from ..utils.constants import Scopes
 
 router = APIRouter()
 
