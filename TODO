@@ -1,9 +1,8 @@
 Priority:
 - move scopes into other file (not constants - maybe auth or security??)
 - are refresh tokens needed for a cookie based auth system?
-- jinja2 templates for easy testing
 - key pair management (rotation?)
-- username/password not set in config -> validation error -> log to console
+- discuss if two oauth2 schemas are necessary
 
 Nice to have:
 - TZ information
@@ -20,6 +19,7 @@ Not yet tested:
 - cookie based auth
 - custom types for username and password (with regex - on/off via config)
 - CORS
+- jinja2 templates for easy testing
 
 Not needed:
 - custom base model with fastapi jsonable_encoder
@@ -39,6 +39,7 @@ Done:
 ✓ log out with cookie delete
 ✓ split security.py into dependencies and non-dependencies
 ✓ update role endpoint
+✓ username/password not set in config -> validation error -> log to console
 
 Links:
 - https://nilsdebruin.medium.com/fastapi-how-to-add-basic-and-cookie-authentication-a45c85ef47d3

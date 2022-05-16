@@ -17,7 +17,7 @@ router = APIRouter(
 @router.get('/{username}', response_model=schemas.UserOut)
 async def get_user(
     username: Username,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get),
 ) -> schemas.UserOut:
     """
@@ -37,7 +37,7 @@ async def get_user(
 
 @router.get('', response_model=list[schemas.UserOut])
 async def get_all_users(
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get),
 ) -> list[schemas.UserOut]:
     """
@@ -60,7 +60,7 @@ async def get_all_users(
 )
 async def create_user(
     user: schemas.UserIn,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """
@@ -82,7 +82,7 @@ async def create_user(
 async def update_user(
     username: Username,
     user: schemas.UserInUpdate,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """
@@ -102,7 +102,7 @@ async def update_user(
 @router.delete('/{username}', response_model=schemas.UserOut)
 async def delete_user(
     username: Username,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """

@@ -4,7 +4,7 @@ import json
 from os import path
 from pathlib import Path
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 
 class Settings(BaseSettings):
@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     LOG_LEVEL = 'debug'
 
     # first user to be created (admin)
-    DEFAULT_USER_USERNAME: str
-    DEFAULT_USER_PASSWORD: str
+    DEFAULT_USER_USERNAME: str = Field(env='ADMIN_USERNAME')
+    DEFAULT_USER_PASSWORD: str = Field(env='ADMIN_PASSWORD')
 
     # first role to be created (admin)
     DEFAULT_ROLE_NAME: str = 'authopie-admin'

@@ -50,6 +50,7 @@ class Scopes:
     GOD = Scope('*')
     MANAGE_USERS = Scope('manage-users', '*')
     MANAGE_ROLES = Scope('manage-roles', '*')
+    NONE = Scope('')
 
 
 # Type for username is defined by config

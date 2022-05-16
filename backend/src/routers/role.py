@@ -17,7 +17,7 @@ router = APIRouter(
 async def get_role(
     name: str,
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_scheme)
+    token_str: str = Depends(security.oauth2_access_scheme)
 ) -> schemas.RoleOut:
     """
     searches db for role with given name
@@ -35,7 +35,7 @@ async def get_role(
 @router.get('', response_model=list[schemas.RoleOut])
 async def get_all_roles(
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_scheme)
+    token_str: str = Depends(security.oauth2_access_scheme)
 ) -> list[schemas.RoleOut]:
     """
     success: returns all roles in db
@@ -53,7 +53,7 @@ async def get_all_roles(
 async def create_role(
     role: schemas.RoleIn,
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_scheme)
+    token_str: str = Depends(security.oauth2_access_scheme)
 ) -> schemas.RoleOut:
     """
     checks db for role with given name and then creates role in db
@@ -72,7 +72,7 @@ async def create_role(
 async def update_role(
     name: str,
     role: schemas.RoleInUpdate,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.RoleOut:
     """
@@ -93,7 +93,7 @@ async def update_role(
 async def delete_role(
     name: str,
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_scheme)
+    token_str: str = Depends(security.oauth2_access_scheme)
 ) -> schemas.RoleOut:
     """
     searches db for role with given name and deletes it

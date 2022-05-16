@@ -154,6 +154,8 @@ class Token(HashableBaseModel):
     jti: uuid.UUID | None = Field(default_factory=uuid.uuid4)
     # areas the user has access to
     scopes: list[str] = []
+    # user the token was created for
+    user: UserInDB | None
 
     class Config:
         extra = Extra.allow  # allows us to append extra data

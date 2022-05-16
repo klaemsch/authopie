@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..dependencies import database
-from ..dependencies.security import oauth2_scheme
+from ..dependencies.security import oauth2_access_scheme
 from ..utils import auth
 from ..utils.constants import Scopes
 from .role import get_all_roles
@@ -68,7 +68,7 @@ async def get_roles(
 @router.get('/api-token')
 async def api_token(
     request: Request,
-    token_str: str = Depends(oauth2_scheme),
+    token_str: str = Depends(oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> HTMLResponse:
 

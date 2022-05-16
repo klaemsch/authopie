@@ -215,7 +215,9 @@ def authenticate_user(token_str: str, db: Session) -> schemas.Token:
 
     try:
         # get username from token (stored in sub) and search for it in db
-        crud.get_user(token.sub, db)
+        user = crud.get_user(token.sub, db)
+        # assign user to token
+        token.user = user
         return token
     except EntityDoesNotExistException:
         logger.warn('JWT contains a username that doesnt exist!')

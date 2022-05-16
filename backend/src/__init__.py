@@ -9,6 +9,7 @@ logger = get_logger('authopie', 'DEBUG')
 
 try:
     config = load_config()
-except ValidationError:
+except ValidationError as exc:
     logger.warn('Corrupt or Incorrect config file')
+    logger.debug(exc)
     sys.exit()

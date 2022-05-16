@@ -1,7 +1,7 @@
 """ GET TOKEN, UPDATE TOKEN, GET API TOKEN """
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response, RedirectResponse
+from fastapi.responses import Response, RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
 
 from ..utils import auth, cookie
@@ -59,7 +59,7 @@ async def login_for_token(
 @router.post('/refresh')
 async def refresh_token(
     response: Response,
-    form_data: security.RefreshRequestForm = Depends(),
+    token_str: str = Depends(security.oauth2_refresh_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.TokenPair:
     """
@@ -69,10 +69,10 @@ async def refresh_token(
     """
 
     # authenticate token / user with given refresh token
-    user = auth.authenticate_user(form_data.refresh_token, db)
+    token = auth.authenticate_user(token_str, db)
 
     # create new token pair (access_token/refresh_token)
-    token_pair = auth.create_token_pair(user, db)
+    token_pair = auth.create_token_pair(token.user, db)
 
     # add cookie for access_token
     cookie.set_cookie(response, 'access_token', token_pair.access_token)
@@ -83,12 +83,30 @@ async def refresh_token(
     return token_pair
 
 
+@router.get('/test')
+async def test_token(
+    token_str: str = Depends(security.oauth2_access_scheme),
+    db: Session = Depends(database.get)
+):
+    """
+    Test Endpoint: Checks given tokens for validity
+    Success: returns 200 OK
+    AuthN Failure: Returns 401 Unauthorized
+    """
+
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.NONE, db)
+
+    return JSONResponse({'detail': 'Authorization confirmed.'})
+
+
 @router.get('/api')
 async def get_api_token(
     exp: int,
     sub: str,
     aud: str,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> str:
     """
