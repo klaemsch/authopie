@@ -46,10 +46,11 @@ async def get_open_api_endpoint(
 
 @router.get("/docs")
 async def get_documentation(
+    request: Request,
     token_str=Depends(secure_docs_wrapper())
 ) -> HTMLResponse:
     """ generates swagger docs """
     return get_swagger_ui_html(
-        openapi_url=router.url_path_for('get_open_api_endpoint'),
+        openapi_url=request.url_for('get_open_api_endpoint'),
         title="Authopie docs"
     )
