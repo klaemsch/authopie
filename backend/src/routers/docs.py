@@ -39,8 +39,8 @@ async def get_open_api_endpoint(
         routes=request.app.routes,
         servers=[{"url": config.ROOT_PATH}]
     )
-    # openapi["components"]["schemas"]["ValidationError"]["properties"]["loc"]["items"] = {
-    #    "type": "string"}
+    openapi["components"]["schemas"]["ValidationError"]["properties"]["loc"]["items"] = {
+        "type": "string"}
     return JSONResponse(openapi)
 
 
