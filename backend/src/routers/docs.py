@@ -1,3 +1,4 @@
+from pathlib import PurePath
 from fastapi import APIRouter, Depends
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse, HTMLResponse
@@ -49,6 +50,6 @@ async def get_documentation(
 ) -> HTMLResponse:
     """ generates swagger docs """
     return get_swagger_ui_html(
-        openapi_url="/openapi.json",
+        openapi_url=PurePath(config.ROOT_PATH, '/openapi.json'),
         title="Authopie docs"
     )
