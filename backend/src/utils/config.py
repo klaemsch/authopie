@@ -9,9 +9,6 @@ from pydantic import BaseSettings, Field
 
 class Settings(BaseSettings):
 
-    # list of valid server urls (mainly for openapi)
-    SERVERS: list[dict[str, str]]
-
     # uvicorn start settings
     HOST = '127.0.0.1'
     PORT = 5555

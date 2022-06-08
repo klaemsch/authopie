@@ -1,9 +1,4 @@
 {
-    "SERVERS": [
-        {
-            "url": "http://127.0.0.1"
-        }
-    ],
     "DB_PATH": "./auth.db",
     "TOKEN_LIFETIME": 30,
     "REFRESH_TOKEN_LIFETIME": 1,
@@ -22,7 +17,7 @@
     "HOST": "127.0.0.1",
     "PORT": 5555,
     "LOG_LEVEL": "debug",
-    "ROOT_PATH": "/",
+    "ROOT_PATH": "/auth",
     "COOKIE_SAMESITE": "Strict",
     "COOKIE_SECURE": true,
     "COOKIE_HTTPONLY": true,

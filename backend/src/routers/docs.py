@@ -37,7 +37,7 @@ async def get_open_api_endpoint(
         title="FastAPI",
         version=1,
         routes=request.app.routes,
-        servers=config.SERVERS
+        servers=[{"url": config.ROOT_PATH}]
     )
     # openapi["components"]["schemas"]["ValidationError"]["properties"]["loc"]["items"] = {
     #    "type": "string"}
@@ -50,6 +50,6 @@ async def get_documentation(
 ) -> HTMLResponse:
     """ generates swagger docs """
     return get_swagger_ui_html(
-        openapi_url=PurePath(config.ROOT_PATH, '/openapi.json'),
+        openapi_url=router.url_path_for('get_open_api_endpoint'),
         title="Authopie docs"
     )
