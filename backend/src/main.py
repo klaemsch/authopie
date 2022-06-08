@@ -4,8 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import config, crud, logger, schemas
 from .dependencies import database
 from .exceptions import EntityAlreadyExistsException
-from .routers import (docs, import_export, jwks, key_pairs, role, static,
-                      token, user)
+from .routers import (docs, import_export, jwks, key_pairs,
+                      role, token, user)
 
 app = FastAPI(
     root_path=config.ROOT_PATH,
@@ -30,7 +30,6 @@ app.include_router(jwks.router)
 app.include_router(key_pairs.router)
 app.include_router(import_export.router)
 app.include_router(docs.router)
-app.include_router(static.router)
 
 
 @app.on_event("startup")
