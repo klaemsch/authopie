@@ -26,6 +26,18 @@ def get_key_pair(kid: str, db: Session) -> schemas.KeyPair:
     return schemas.KeyPair.from_orm(key_pair)
 
 
+def get_all_key_pairs(db: Session) -> list[schemas.KeyPair]:
+    """
+    get all key pairs from db (valid AND invalid)
+    Success: return a list of all KeyPairs
+    """
+
+    return [
+        schemas.KeyPair.from_orm(key_pair)
+        for key_pair in models.KeyPair.get_all(db)
+    ]
+
+
 def get_valid_key_pairs(db: Session) -> list[schemas.KeyPair]:
     """
     get all valid key pairs from db

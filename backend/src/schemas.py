@@ -100,16 +100,7 @@ class UserInDB(UserBase):
         orm_mode = True
 
 
-""" INTERN DB MODELS """
-
-
-class RefreshToken(HashableBaseModel):
-    token: uuid.UUID
-    user: UserInDB
-    exp: int
-
-    class Config:
-        orm_mode = True
+""" KEY PAIR """
 
 
 class KeyPair(HashableBaseModel):
@@ -126,6 +117,12 @@ class KeyPair(HashableBaseModel):
 
     class Config:
         orm_mode = True
+
+
+class KeyPairOut(HashableBaseModel):
+    kid: str                        # Key ID
+    exp: datetime                   # exprire date
+    added_at: datetime | None    # datetime of model creation
 
 
 """ Pure Response Models """

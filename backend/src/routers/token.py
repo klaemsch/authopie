@@ -141,7 +141,7 @@ async def logout():
     but maybe /logout would be better
     """
 
-    response = RedirectResponse(url='/')
+    response = Response()
     cookie.delete_cookie(response, 'access_token')
     cookie.delete_cookie(response, 'refresh_token')
     return response

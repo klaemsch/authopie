@@ -32,13 +32,15 @@ async def get_open_api_endpoint(
     token_str=Depends(secure_docs_wrapper())
 ) -> JSONResponse:
     """ generates and returns openapi.json for app """
-    return JSONResponse(
-        get_openapi(
-            title="FastAPI",
-            version=1,
-            routes=request.app.routes
-        )
+    openapi = get_openapi(
+        title="FastAPI",
+        version=1,
+        routes=request.app.routes,
+        servers=config.SERVERS
     )
+    # openapi["components"]["schemas"]["ValidationError"]["properties"]["loc"]["items"] = {
+    #    "type": "string"}
+    return JSONResponse(openapi)
 
 
 @router.get("/docs")

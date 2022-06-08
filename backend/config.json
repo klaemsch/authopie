@@ -1,4 +1,9 @@
 {
+    "SERVERS": [
+        {
+            "url": "http://127.0.0.1"
+        }
+    ],
     "DB_PATH": "./auth.db",
     "TOKEN_LIFETIME": 30,
     "REFRESH_TOKEN_LIFETIME": 1,

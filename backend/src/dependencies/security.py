@@ -18,11 +18,15 @@ def get_token_from_request(request: Request, key: str) -> str:
     if token_str is None:
         # retrieve token from auth header
         token_str: str = request.headers.get("Authorization")
+        # if token not found -> 401 Unauthorized
+        if token_str is None:
+            logger.warn('No token found in request')
+            raise TokenValidationFailedException
         # split str at whitespace (Bearer TOKEN)
         scheme, _, token_str = token_str.partition(' ')
-        # if token not found or wrong schema -> 401 Unauthorized
-        if token_str is None or not scheme == 'Bearer':
-            logger.warn('No token found in request')
+        # if wrong schema -> 401 Unauthorized
+        if not scheme == 'Bearer':
+            logger.warn('Token has wrong schema')
             raise TokenValidationFailedException
     # logger.debug(token_str)
     return token_str
