@@ -8,8 +8,8 @@ from ..utils import auth
 from ..utils.constants import Scopes
 
 router = APIRouter(
-    prefix='/key_pairs',
-    tags=['key_pairs'],
+    prefix='/key_pair',
+    tags=['key_pair'],
 )
 
 
