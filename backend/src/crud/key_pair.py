@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import delete
 
 from .. import config, logger, models, schemas
 from ..exceptions import EntityDoesNotExistException
@@ -130,5 +131,30 @@ def create_key_pair(db: Session) -> schemas.KeyPair:
     key_pair: schemas.KeyPair = models.KeyPair.create(key_pair, db)
 
     logger.debug(f'KeyPair {key_pair.kid} was successfuly created')
+
+    return key_pair
+
+
+def delete_key_pair(kid: str, db: Session) -> schemas.KeyPair:
+    """
+    delete existing keypair in db by kid
+    Success: return KeyPair
+    Failure (kid not in db): raise EntityDoesNotExistException
+    """
+
+    # try to get keypair that shall be deleted
+    # raises 404 Not Found if no keypair was found
+    key_pair = get_key_pair(kid, db)
+
+    # create delete query
+    stmt = delete(models.KeyPair).where(models.KeyPair.kid == kid)
+
+    # execute update query locally
+    db.execute(stmt)
+
+    # commit local changes to database
+    db.commit()
+
+    logger.debug(f'KeyPair {key_pair.kid} was successfuly deleted')
 
     return key_pair

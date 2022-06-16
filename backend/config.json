@@ -17,7 +17,7 @@
     "HOST": "127.0.0.1",
     "PORT": 5555,
     "LOG_LEVEL": "debug",
-    "ROOT_PATH": "/auth",
+    "ROOT_PATH": "/",
     "COOKIE_SAMESITE": "Strict",
     "COOKIE_SECURE": true,
     "COOKIE_HTTPONLY": true,

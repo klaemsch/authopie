@@ -50,6 +50,7 @@ class Scopes:
     GOD = Scope('*')
     MANAGE_USERS = Scope('manage-users', '*')
     MANAGE_ROLES = Scope('manage-roles', '*')
+    MANAGE_KEY_PAIRS = Scope('manage-key-pairs', '*')
     NONE = Scope('')
 
 

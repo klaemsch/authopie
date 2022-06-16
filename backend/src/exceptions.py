@@ -6,14 +6,12 @@ from . import logger
 
 class IncorrectCredentialsException(HTTPException):
     """ HTTPException 401 Unauthorized """
-    # TODO: we dont use Bearer anymore
 
     def __init__(self) -> None:
         """ HTTPException 401 Unauthorized """
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="401 Unauthorized: Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
 

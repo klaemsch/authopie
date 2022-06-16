@@ -3,6 +3,7 @@ Priority:
 - are refresh tokens needed for a cookie based auth system?
 - key pair management (rotation?)
 - discuss if two oauth2 schemas are necessary
+- error handling, most importantly for db errors
 
 Nice to have:
 - TZ information
@@ -20,6 +21,7 @@ Not yet tested:
 - custom types for username and password (with regex - on/off via config)
 - CORS
 - jinja2 templates for easy testing
+- dont send TokenPair back after login/refresh (only set cookies)
 
 Not needed:
 - custom base model with fastapi jsonable_encoder
@@ -40,6 +42,7 @@ Done:
 ✓ split security.py into dependencies and non-dependencies
 ✓ update role endpoint
 ✓ username/password not set in config -> validation error -> log to console
+✓ response doesnt need "www-authenticate Bearer"
 
 Links:
 - https://nilsdebruin.medium.com/fastapi-how-to-add-basic-and-cookie-authentication-a45c85ef47d3

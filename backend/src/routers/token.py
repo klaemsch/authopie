@@ -1,7 +1,7 @@
 """ GET TOKEN, UPDATE TOKEN, GET API TOKEN """
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response, RedirectResponse, JSONResponse
+from fastapi.responses import Response, JSONResponse
 from sqlalchemy.orm import Session
 
 from ..utils import auth, cookie
@@ -17,16 +17,16 @@ router = APIRouter(
 )
 
 
-@router.post('', response_model=schemas.TokenPair)
+@router.post('')
 async def login_for_token(
     response: Response,
     form_data: security.LoginRequestForm = Depends(),
     db: Session = Depends(database.get)
-) -> schemas.TokenPair:
+):
     """
     Endpoint to retrieve the first token (access + refresh token pair)
     auth with username and password
-    Success: returns TokenPair (access_token + refresh_token)
+    Success: returns 200 OK with cookies (access_token + refresh_token)
     Failure: Returns 401 Unauthorized
     """
 
@@ -53,7 +53,7 @@ async def login_for_token(
     # add cookie for refresh_token
     cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
 
-    return token_pair
+    return
 
 
 @router.post('/refresh')
@@ -61,10 +61,10 @@ async def refresh_token(
     response: Response,
     token_str: str = Depends(security.oauth2_refresh_scheme),
     db: Session = Depends(database.get)
-) -> schemas.TokenPair:
+):
     """
     Generate a new token pair by giving a correct refresh_token
-    Success: returns TokenPair (access_token + refresh_token)
+    Success: returns 200 OK with cookies (access_token + refresh_token)
     Failure: Returns 401 Unauthorized
     """
 
@@ -80,7 +80,7 @@ async def refresh_token(
     # add cookie for refresh_token
     cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
 
-    return token_pair
+    return
 
 
 @router.get('/test')
