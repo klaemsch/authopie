@@ -1,8 +1,10 @@
+""" load config from file """
+
 import json
 from os import path
 from pathlib import Path
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 
 class Settings(BaseSettings):
@@ -13,8 +15,8 @@ class Settings(BaseSettings):
     LOG_LEVEL = 'debug'
 
     # first user to be created (admin)
-    DEFAULT_USER_USERNAME: str = 'authopie@authopie.com'
-    DEFAULT_USER_PASSWORD: str = 'authopie'
+    DEFAULT_USER_USERNAME: str = Field(env='ADMIN_USERNAME')
+    DEFAULT_USER_PASSWORD: str = Field(env='ADMIN_PASSWORD')
 
     # first role to be created (admin)
     DEFAULT_ROLE_NAME: str = 'authopie-admin'
@@ -35,7 +37,8 @@ class Settings(BaseSettings):
     AUD: str = 'Authopie'
 
     # CORS Settins
-    BASE_URLS: list[str] = ['http://localhost:3000']
+    ORIGINS: list[str] = ['http://localhost:3000']
+    ALLOWED_HEADERS: list[str] = ['Cookies']
 
     # root path for proxy
     ROOT_PATH: str = '/auth'
@@ -46,6 +49,21 @@ class Settings(BaseSettings):
     COOKIE_HTTPONLY: bool = True
     COOKIE_MAX_AGE: int = 30
     COOKIE_DOMAIN: str = '/'
+    COOKIE_PATH: str = '/'
+
+    # turn password regex on
+    # -> min 8 digits
+    # -> at least one upper case
+    # -> at least one lower case
+    # -> at least one special character
+    # -> at least one number
+    PASSWORD_REGEX: bool = False
+
+    # if true username has to be an email -> will be enforced
+    USERNAME_IS_EMAIL: bool = True
+
+    # wether config should be behind auth or not
+    SECURE_DOCS: bool = True
 
 
 def load_config():

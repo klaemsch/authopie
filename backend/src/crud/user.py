@@ -2,20 +2,27 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import delete
 
 from .. import logger, models, schemas
-from ..dependencies import pwdhash
 from ..exceptions import (EntityAlreadyExistsException,
                           EntityDoesNotExistException,
                           IncorrectCredentialsException)
+from ..utils import pwdhash
+from ..utils.constants import Password, Username
 from .role import get_role
 
 
-def get_user(username: str, db: Session) -> schemas.UserInDB:
+def get_user(username: Username, db: Session) -> schemas.UserInDB:
+    """
+    get user from db by username
+    Success: return UserInDB
+    Failure (no user with username): raise EntityDoesNotExistException
+    """
 
     # find user by username
     user: models.User = models.User.get_by_username(username, db)
 
     # check if any entries were found
     if user is None:
+        logger.debug(f'User {username} does not exist in db!')
         # no db entries found -> raise 404 Not Found
         raise EntityDoesNotExistException('User')
 
@@ -23,6 +30,10 @@ def get_user(username: str, db: Session) -> schemas.UserInDB:
 
 
 def get_all_users(db: Session) -> list[schemas.UserInDB]:
+    """
+    get all users from db
+    Success: return a list of all UserInDB
+    """
 
     return [
         schemas.UserInDB.from_orm(user)
@@ -31,6 +42,11 @@ def get_all_users(db: Session) -> list[schemas.UserInDB]:
 
 
 def create_user(user: schemas.UserIn, db: Session) -> schemas.UserInDB:
+    """
+    create new user in db from schema UserIn (username, password, roles)
+    Success: return UserInDB
+    Failure (username already in db): raise EntityAlreadyExistsException
+    """
 
     # check if user already exists
     # TODO this is really clunky
@@ -59,16 +75,23 @@ def create_user(user: schemas.UserIn, db: Session) -> schemas.UserInDB:
         roles=roles
     )
 
+    logger.debug(f'User {new_user.username} was successfuly created')
+
     return models.User.create(new_user, db)
 
 
 def update_user(
-    username: str,
+    username: Username,
     user_update: schemas.UserInUpdate,
     db: Session
 ) -> schemas.UserInDB:
+    """
+    update existing user in db from UserInUpdate (username, password, roles)
+    Success: return UserInDB
+    Failure (username not in db): raise EntityDoesNotExistException
+    """
 
-    # check if user exists, raises 404 Not Found if ID invalid
+    # check if user exists
     db_user = models.User.get_by_username(username, db)
 
     if db_user is None:
@@ -90,6 +113,7 @@ def update_user(
         db_user.hashed_password = pwdhash.get_password_hash(
             user_update.password)
 
+    # update user role table
     if user_update.roles is not None and len(user_update.roles) > 0:
         update_user_role(db_user, user_update.roles, db)
 
@@ -97,6 +121,8 @@ def update_user(
     db.commit()
     # refresh local user by pulling from database
     db.refresh(db_user)
+
+    logger.debug(f'User {db_user.username} was successfuly updated')
 
     return schemas.UserInDB.from_orm(db_user)
 
@@ -127,7 +153,12 @@ def update_user_role(db_user: models.User, new_roles: list[str], db: Session):
         db.add(db_user_role)
 
 
-def delete_user(username: str, db: Session) -> schemas.UserInDB:
+def delete_user(username: Username, db: Session) -> schemas.UserInDB:
+    """
+    delete existing user in db by username
+    Success: return UserInDB
+    Failure (username not in db): raise EntityDoesNotExistException
+    """
 
     # try to get user that shall be deleted
     # raises 404 Not Found if no user was found
@@ -150,24 +181,30 @@ def delete_user(username: str, db: Session) -> schemas.UserInDB:
     # commit local changes to database
     db.commit()
 
+    logger.debug(f'User {user.username} was successfuly deleted')
+
     return user
 
 
 def authenticate_user(
-    username: str,
-    password: str,
+    username: Username,
+    password: Password,
     db: Session
 ) -> schemas.UserInDB:
     """
     compares given username and password to db
-    - user not found: raises 404 Not Found
-    - password correct: returns user schema
+    - user not found: raises 401 Unauthorized
     - password wrong: raises 401 Unauthorized
+    - password correct: returns user schema
     """
 
     # get user by username
-    # raises 404 Not Found, if no user with given username exists in db
-    user = get_user(username, db)
+    try:
+        # raises 404 Not Found, if no user with given username exists in db
+        user = get_user(username, db)
+    except EntityDoesNotExistException:
+        # wrong username -> raise 401 Unauthorized
+        raise IncorrectCredentialsException
 
     if not pwdhash.verify_password(password, user.hashed_password):
         # wrong password for given username

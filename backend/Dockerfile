@@ -1,7 +1,7 @@
 # load python base image
 FROM python:latest
 
-# we will work in /code from now on
+# we will work in /authopie from now on
 WORKDIR /authopie
 
 # copy backend files into container

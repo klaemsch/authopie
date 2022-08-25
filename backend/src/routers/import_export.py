@@ -8,8 +8,9 @@ from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
 
 from .. import crud, logger, models, schemas
-from ..dependencies import auth, database, security
-from ..dependencies.constants import Scopes
+from ..dependencies import database, security
+from ..utils import auth
+from ..utils.constants import Scopes
 
 router = APIRouter()
 
@@ -18,7 +19,7 @@ router = APIRouter()
 async def export_authopie(
     export_users: bool = True,
     export_roles: bool = True,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ):
     """
@@ -47,7 +48,7 @@ async def import_authopie(
     file: UploadFile,
     import_users: bool = True,
     import_roles: bool = True,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ):
     """

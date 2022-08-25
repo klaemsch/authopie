@@ -1,15 +1,18 @@
 {
     "DB_PATH": "./auth.db",
-    "TOKEN_LIFETIME": 5,
+    "TOKEN_LIFETIME": 30,
     "REFRESH_TOKEN_LIFETIME": 1,
     "KEY_PAIR_LIFETIME": 10,
     "AUD": "Authopie",
     "DEFAULT_USER_USERNAME": "authopie@authopie.com",
     "DEFAULT_USER_PASSWORD": "authopie",
     "DEFAULT_ROLE_NAME": "authopie-admin",
-    "BASE_URLS": [
+    "ORIGINS": [
         "http://localhost:3000",
         "http://127.0.0.1:3000"
+    ],
+    "ALLOWED_HEADERS": [
+        "Cookies"
     ],
     "HOST": "127.0.0.1",
     "PORT": 5555,
@@ -18,6 +21,10 @@
     "COOKIE_SAMESITE": "Strict",
     "COOKIE_SECURE": true,
     "COOKIE_HTTPONLY": true,
-    "COOKIE_MAX_AGE": 30,
-    "COOKIE_DOMAIN": "127.0.0.1"
+    "COOKIE_MAX_AGE": 1800,
+    "COOKIE_DOMAIN": "127.0.0.1",
+    "COOKIE_PATH": "/",
+    "PASSWORD_REGEX": false,
+    "USERNAME_IS_EMAIL": false,
+    "SECURE_DOCS": false
 }

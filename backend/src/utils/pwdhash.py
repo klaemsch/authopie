@@ -1,3 +1,5 @@
+""" hash password, compare password to hash from db """
+
 from passlib.context import CryptContext
 
 ctx = CryptContext(schemes=["bcrypt"], deprecated=["auto"])

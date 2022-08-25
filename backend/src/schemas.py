@@ -1,11 +1,12 @@
+from unicodedata import name
 import uuid
 from datetime import datetime
 from time import time
 
-from pydantic import (BaseModel, EmailStr, Extra, Field, root_validator,
-                      validator)
+from pydantic import BaseModel, Extra, Field, root_validator, validator
 
 from . import config
+from .utils.constants import Username, Password
 
 
 class HashableBaseModel(BaseModel):
@@ -21,15 +22,6 @@ class RoleBase(HashableBaseModel):
     name: str
     scopes: str | None = ''
 
-    def get_scopes_as_list(self) -> list:
-        if self.scopes is not None:
-            return self.scopes.split(' ')
-        return []
-
-    def set_scopes_from_list(self, scopes: list) -> str:
-        self.scopes = ' '.join(scopes)
-        return self.scopes
-
     @validator('scopes')
     def every_scope_only_once(cls, v):
         scope_list = v.split(' ')
@@ -42,6 +34,19 @@ class RoleBase(HashableBaseModel):
 
 class RoleIn(RoleBase):
     pass
+
+
+class RoleInUpdate(RoleIn):
+    name: str | None
+    scopes: str | None
+
+    @root_validator(skip_on_failure=True)
+    def check_for_no_data(cls, values):
+        name_check = values['name'] is None
+        scope_check = values['scopes'] is None
+        if all([name_check, scope_check]):
+            raise ValueError('No data received')
+        return values
 
 
 class RoleOut(RoleBase):
@@ -59,18 +64,18 @@ class RoleInDB(RoleBase):
 
 
 class UserBase(HashableBaseModel):
-    username: EmailStr
+    username: Username
 
 
 class UserIn(UserBase):
-    username: EmailStr
-    password: str
+    username: Username
+    password: Password
     roles: list[str] | None = []
 
 
 class UserInUpdate(UserIn):
-    username: EmailStr | None
-    password: str | None
+    username: Username | None
+    password: Password | None
 
     @root_validator(skip_on_failure=True)
     def check_for_no_data(cls, values):
@@ -95,16 +100,7 @@ class UserInDB(UserBase):
         orm_mode = True
 
 
-""" INTERN DB MODELS """
-
-
-class RefreshToken(HashableBaseModel):
-    token: uuid.UUID
-    user: UserInDB
-    exp: int
-
-    class Config:
-        orm_mode = True
+""" KEY PAIR """
 
 
 class KeyPair(HashableBaseModel):
@@ -121,6 +117,12 @@ class KeyPair(HashableBaseModel):
 
     class Config:
         orm_mode = True
+
+
+class KeyPairOut(HashableBaseModel):
+    kid: str                        # Key ID
+    exp: datetime                   # exprire date
+    added_at: datetime | None    # datetime of model creation
 
 
 """ Pure Response Models """
@@ -149,6 +151,8 @@ class Token(HashableBaseModel):
     jti: uuid.UUID | None = Field(default_factory=uuid.uuid4)
     # areas the user has access to
     scopes: list[str] = []
+    # user the token was created for
+    user: UserInDB | None
 
     class Config:
         extra = Extra.allow  # allows us to append extra data

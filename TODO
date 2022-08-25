@@ -1,26 +1,31 @@
 Priority:
-- client_id / client_secret
-- CORS
-- 2 methods called authenticate user (crud.user and dependencies.auth)
-- difference between dep and util
+- move scopes into other file (not constants - maybe auth or security??)
+- are refresh tokens needed for a cookie based auth system?
+- key pair management (rotation?)
+- discuss if two oauth2 schemas are necessary
+- error handling, most importantly for db errors
 
 Nice to have:
 - TZ information
-- password regex
 - JWK x5c/x5t https://stackoverflow.com/questions/69179822/jwk-key-creation-with-x5c-and-x5t-parameters
 - certificate
 - type of keys in KeyPair schema (wait for https://github.com/mpdavis/python-jose/pull/295)
+- scope management in db
 
 Not yet tested:
-- refresh token (JWT or UUID ???)
 - use scope system to authorize usage of endpoints
 - import users/roles from file
 - export to file
 - api token generation
 - cookie based auth
+- custom types for username and password (with regex - on/off via config)
+- CORS
+- jinja2 templates for easy testing
+- dont send TokenPair back after login/refresh (only set cookies)
 
 Not needed:
 - custom base model with fastapi jsonable_encoder
+- client_id / client_secret
 
 Done:
 ✓ Use Pydantic BaseSetting for Config
@@ -31,6 +36,13 @@ Done:
 ✓ public key JWK endpoint
 ✓ DB Mixin
 ✓ custom logger
+✓ util -> utils
+✓ Cookie/Token Auth for docs (on/off in config)
+✓ log out with cookie delete
+✓ split security.py into dependencies and non-dependencies
+✓ update role endpoint
+✓ username/password not set in config -> validation error -> log to console
+✓ response doesnt need "www-authenticate Bearer"
 
 Links:
 - https://nilsdebruin.medium.com/fastapi-how-to-add-basic-and-cookie-authentication-a45c85ef47d3

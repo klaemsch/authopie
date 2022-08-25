@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from fastapi.encoders import jsonable_encoder
 from jose import jws, jwt
-from jose.exceptions import JWTError, JWSError
+from jose.exceptions import JWSError, JWTError
 from sqlalchemy.orm import Session
 
 from .. import config, crud, logger, schemas
@@ -10,8 +10,6 @@ from ..exceptions import (ActionForbiddenException,
                           EntityDoesNotExistException,
                           TokenValidationFailedException, TypeException)
 from .constants import Scopes
-
-# TODO: discuss if this file should be called otherwise (perhaps security)
 
 
 def calculate_token_exp(expires_in: timedelta):
@@ -168,6 +166,7 @@ def validate_jwt(token: str, db: Session) -> schemas.Token:
 
     if not isinstance(token, str):
         logger.warn('JWT validation failed - not a string')
+        print(type(token))
         raise TokenValidationFailedException
 
     try:
@@ -216,7 +215,9 @@ def authenticate_user(token_str: str, db: Session) -> schemas.Token:
 
     try:
         # get username from token (stored in sub) and search for it in db
-        crud.get_user(token.sub, db)
+        user = crud.get_user(token.sub, db)
+        # assign user to token
+        token.user = user
         return token
     except EntityDoesNotExistException:
         logger.warn('JWT contains a username that doesnt exist!')

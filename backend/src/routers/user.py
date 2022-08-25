@@ -1,10 +1,12 @@
+""" GET user, POST user, PUT user, DELETE user """
+
 from fastapi import APIRouter, Depends, status
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from .. import crud, schemas
-from ..dependencies import auth, database, security
-from ..dependencies.constants import Scopes
+from ..dependencies import database, security
+from ..utils import auth
+from ..utils.constants import Scopes, Username
 
 router = APIRouter(
     prefix='/user',
@@ -12,10 +14,10 @@ router = APIRouter(
 )
 
 
-@router.get('', response_model=schemas.UserOut)
+@router.get('/{username}', response_model=schemas.UserOut)
 async def get_user(
-    username: EmailStr,
-    token_str: str = Depends(security.oauth2_scheme),
+    username: Username,
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get),
 ) -> schemas.UserOut:
     """
@@ -26,9 +28,29 @@ async def get_user(
     """
 
     # validates JWT + checks if user in token sub exists
-    auth.authenticate_user(token_str, db)
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_USERS, db)
 
     return crud.get_user(username, db)
+
+
+@router.get('', response_model=list[schemas.UserOut])
+async def get_all_users(
+    token_str: str = Depends(security.oauth2_access_scheme),
+    db: Session = Depends(database.get),
+) -> list[schemas.UserOut]:
+    """
+    success: returns all users in db
+    Auth Failure: 401 Unauthorized
+    """
+
+    # validates JWT + checks if user in token sub exists
+    token = auth.authenticate_user(token_str, db)
+
+    auth.authorize_user(token, Scopes.MANAGE_USERS, db)
+
+    return crud.get_all_users(db)
 
 
 @router.post(
@@ -38,7 +60,7 @@ async def get_user(
 )
 async def create_user(
     user: schemas.UserIn,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """
@@ -56,17 +78,17 @@ async def create_user(
     return crud.create_user(user, db)
 
 
-@router.put('', response_model=schemas.UserOut)
+@router.put('/{username}', response_model=schemas.UserOut)
 async def update_user(
-    username: EmailStr,
+    username: Username,
     user: schemas.UserInUpdate,
-    token_str: str = Depends(security.oauth2_scheme),
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """
     Update data of existing user
     success: data updated, return user
-    user already exists: raise 404 Not Found
+    user does not exists: raise 404 Not Found
     Auth Failure: 401 Unauthorized
     """
 
@@ -77,10 +99,10 @@ async def update_user(
     return crud.update_user(username, user, db)
 
 
-@router.delete('', response_model=schemas.UserOut)
+@router.delete('/{username}', response_model=schemas.UserOut)
 async def delete_user(
-    username: EmailStr,
-    token_str: str = Depends(security.oauth2_scheme),
+    username: Username,
+    token_str: str = Depends(security.oauth2_access_scheme),
     db: Session = Depends(database.get)
 ) -> schemas.UserOut:
     """

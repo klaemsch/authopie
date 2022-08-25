@@ -1,44 +1,59 @@
-from fastapi.requests import Request
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.param_functions import Form
+from fastapi.requests import Request
 from fastapi.security import OAuth2
-from pydantic import EmailStr
+
 from ..exceptions import TokenValidationFailedException
+from ..utils.constants import Password, Username
+from .. import logger
 
-PASSWORD_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$"
+
+def get_token_from_request(request: Request, key: str) -> str:
+    """
+    Looks into request and extracts token from either cookie or auth header
+    Success: returns token string (JWT)
+    Failure: raises 401 Unauthorized
+    """
+    token_str: str = request.cookies.get(key)
+    if token_str is None:
+        # retrieve token from auth header
+        token_str: str = request.headers.get("Authorization")
+        # if token not found -> 401 Unauthorized
+        if token_str is None:
+            logger.warn('No token found in request')
+            raise TokenValidationFailedException
+        # split str at whitespace (Bearer TOKEN)
+        scheme, _, token_str = token_str.partition(' ')
+        # if wrong schema -> 401 Unauthorized
+        if not scheme == 'Bearer':
+            logger.warn('Token has wrong schema')
+            raise TokenValidationFailedException
+    # logger.debug(token_str)
+    return token_str
 
 
-class MyOAuth2PasswordRequestForm:
+class LoginRequestForm:
+    """
+    Implements HTML-Form for login.
+    user sends username and password along side the grant_type password
+    Not quite OAuth2 conform
+    TODO: dicsuss grant_type
+    """
 
     def __init__(
         self,
-        grant_type: str = Form(..., regex="password"),
-        username: EmailStr = Form(...),
-        password: str = Form(...),
-        scope: str = Form(""),
-        client_id: str | None = Form(None),
-        client_secret: str | None = Form(None),
+        # grant_type: str = Form(..., regex="password"),
+        username: Username = Form(...),
+        password: Password = Form(...)
     ):
-        self.grant_type = grant_type
+        # self.grant_type = grant_type
         self.username = username
         self.password = password
-        self.scopes = scope.split()
-        self.client_id = client_id
-        self.client_secret = client_secret
 
 
-class OAuth2RefreshRequestForm:
+class OAuth2AccessCookieBearer(OAuth2):
+    """ This makes this funny swagger pop up for auth """
 
-    def __init__(
-        self,
-        grant_type: str = Form(..., regex="refresh_token"),
-        refresh_token: str = Form(...)
-    ):
-        self.grant_type = grant_type
-        self.refresh_token = refresh_token
-
-
-class OAuth2PasswordBearerWithCookie(OAuth2):
     def __init__(
         self,
         tokenUrl: str,
@@ -56,17 +71,43 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
             description=description
         )
 
-    async def __call__(self, request: Request) -> str | None:
-        authorization: str = request.cookies.get("access_token")
-        if not authorization:
-            raise TokenValidationFailedException
-        return authorization
+    async def __call__(self, request: Request) -> str:
+        return get_token_from_request(request, 'access_token')
+
+
+class OAuth2RefreshCookieBearer(OAuth2):
+    """ This makes this funny swagger pop up for auth """
+
+    def __init__(
+        self,
+        tokenUrl: str,
+        scheme_name: str | None = None,
+        scopes: dict[str, str] | None = None,
+        description: str | None = None
+    ):
+        if not scopes:
+            scopes = {}
+        flows = OAuthFlowsModel(
+            password={"tokenUrl": tokenUrl, "scopes": scopes})
+        super().__init__(
+            flows=flows,
+            scheme_name=scheme_name,
+            description=description
+        )
+
+    async def __call__(self, request: Request) -> str:
+        return get_token_from_request(request, 'refresh_token')
 
 
 # TODO
-oauth2_scheme = OAuth2PasswordBearerWithCookie(
+oauth2_access_scheme = OAuth2AccessCookieBearer(
     tokenUrl="token",
     scheme_name='test',
-    scopes={'a': 'b'},
+    description='testtest'
+)
+
+oauth2_refresh_scheme = OAuth2RefreshCookieBearer(
+    tokenUrl="token",
+    scheme_name='test',
     description='testtest'
 )
