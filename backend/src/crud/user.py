@@ -22,6 +22,7 @@ def get_user(username: Username, db: Session) -> schemas.UserInDB:
 
     # check if any entries were found
     if user is None:
+        logger.debug(f'User {username} does not exist in db!')
         # no db entries found -> raise 404 Not Found
         raise EntityDoesNotExistException('User')
 
@@ -192,14 +193,18 @@ def authenticate_user(
 ) -> schemas.UserInDB:
     """
     compares given username and password to db
-    - user not found: raises 404 Not Found
-    - password correct: returns user schema
+    - user not found: raises 401 Unauthorized
     - password wrong: raises 401 Unauthorized
+    - password correct: returns user schema
     """
 
     # get user by username
-    # raises 404 Not Found, if no user with given username exists in db
-    user = get_user(username, db)
+    try:
+        # raises 404 Not Found, if no user with given username exists in db
+        user = get_user(username, db)
+    except EntityDoesNotExistException:
+        # wrong username -> raise 401 Unauthorized
+        raise IncorrectCredentialsException
 
     if not pwdhash.verify_password(password, user.hashed_password):
         # wrong password for given username
