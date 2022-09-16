@@ -47,7 +47,7 @@ def encode_token(
     """
 
     # create payload (encode to dict)
-    payload = jsonable_encoder(token)
+    payload = jsonable_encoder(token, exclude=['user'])
 
     # save kid of signing key in jwt headers
     headers = dict(kid=key_pair.kid)

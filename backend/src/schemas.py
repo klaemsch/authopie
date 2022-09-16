@@ -153,6 +153,8 @@ class Token(HashableBaseModel):
     scopes: list[str] = []
     # user the token was created for
     user: UserInDB | None
+    # easteregg
+    phil: str = 'when life gives you lemonade make lemons. life will be all like what?!'  # noqa 401
 
     class Config:
         extra = Extra.allow  # allows us to append extra data
