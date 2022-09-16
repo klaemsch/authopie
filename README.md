@@ -54,9 +54,11 @@ docker run --network ptv -d --restart unless-stopped --name ptv-auth -p 5555:555
 ```
 
 # Publishing image to ghcr
+- Generate Token: https://github.com/settings/tokens/new?scopes=write:packages
 ```
 docker build . -t ghcr.io/klaemsch/authopie:latest -t ghcr.io/klaemsch/authopie:v0.2
-echo $CR_PAT | docker login ghcr.io
+export $CR_PAT=TOKEN
+echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
 docker push --all-tags ghcr.io/klaemsch/authopie
 ```
 
