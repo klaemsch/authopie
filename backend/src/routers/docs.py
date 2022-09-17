@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.openapi.utils import get_openapi
 from fastapi.openapi.docs import get_swagger_ui_html
 
-from ..dependencies.security import oauth2_access_scheme
+from ..dependencies.security import OAuth2AccessCookieBearer
 from .. import config
 
 router = APIRouter(
@@ -19,7 +19,7 @@ def secure_docs_wrapper():
     no secured docs -> returns None
     """
 
-    async def _secure(tokens: str = Depends(oauth2_access_scheme)):
+    async def _secure(tokens: str = Depends(OAuth2AccessCookieBearer())):
         return tokens.access_token
 
     if config.SECURE_DOCS:

@@ -52,62 +52,30 @@ class LoginRequestForm:
 
 
 class OAuth2AccessCookieBearer(OAuth2):
-    """ This makes this funny swagger pop up for auth """
+    """
+    Is used as Injection/FastAPI Depends to extract access token from requests
+    This also makes this funny swagger pop up for auth
+    """
 
-    def __init__(
-        self,
-        tokenUrl: str,
-        scheme_name: str | None = None,
-        scopes: dict[str, str] | None = None,
-        description: str | None = None
-    ):
-        if not scopes:
-            scopes = {}
+    def __init__(self):
         flows = OAuthFlowsModel(
-            password={"tokenUrl": tokenUrl, "scopes": scopes})
+            password={"tokenUrl": 'token'})
         super().__init__(
             flows=flows,
-            scheme_name=scheme_name,
-            description=description
+            scheme_name='OAuth2AccessCookieBearer',
+            description='Access Token Cookie or Bearer'
         )
 
     async def __call__(self, request: Request) -> str:
+        # get access token from request (Cookie or Header)
         return get_token_from_request(request, 'access_token')
 
 
-class OAuth2RefreshCookieBearer(OAuth2):
-    """ This makes this funny swagger pop up for auth """
-
-    def __init__(
-        self,
-        tokenUrl: str,
-        scheme_name: str | None = None,
-        scopes: dict[str, str] | None = None,
-        description: str | None = None
-    ):
-        if not scopes:
-            scopes = {}
-        flows = OAuthFlowsModel(
-            password={"tokenUrl": tokenUrl, "scopes": scopes})
-        super().__init__(
-            flows=flows,
-            scheme_name=scheme_name,
-            description=description
-        )
+class OAuth2RefreshCookieBearer:
+    """
+    Is used as Injection/FastAPI Depends to extract refresh token from requests
+    """
 
     async def __call__(self, request: Request) -> str:
+        # get refresh token from request (Cookie or Header)
         return get_token_from_request(request, 'refresh_token')
-
-
-# TODO
-oauth2_access_scheme = OAuth2AccessCookieBearer(
-    tokenUrl="token",
-    scheme_name='test',
-    description='testtest'
-)
-
-oauth2_refresh_scheme = OAuth2RefreshCookieBearer(
-    tokenUrl="token",
-    scheme_name='test',
-    description='testtest'
-)

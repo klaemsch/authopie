@@ -17,7 +17,7 @@ router = APIRouter(
 async def get_key_pair(
     kid: str,
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_access_scheme)
+    token_str: str = Depends(security.OAuth2AccessCookieBearer())
 ) -> schemas.KeyPairOut:
     """
     searches db for keypair with given id
@@ -35,7 +35,7 @@ async def get_key_pair(
 @router.get('', response_model=list[schemas.KeyPairOut])
 async def get_all_key_pairs(
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_access_scheme)
+    token_str: str = Depends(security.OAuth2AccessCookieBearer())
 ) -> list[schemas.KeyPairOut]:
     """
     success: returns all key pairs in db
@@ -52,7 +52,7 @@ async def get_all_key_pairs(
 @router.post('', response_model=schemas.KeyPairOut)
 async def create_key_pair(
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_access_scheme)
+    token_str: str = Depends(security.OAuth2AccessCookieBearer())
 ) -> schemas.KeyPairOut:
     """
     creates a new keypair
@@ -70,7 +70,7 @@ async def create_key_pair(
 async def delete_key_pair(
     kid: str,
     db: Session = Depends(database.get),
-    token_str: str = Depends(security.oauth2_access_scheme)
+    token_str: str = Depends(security.OAuth2AccessCookieBearer())
 ) -> schemas.KeyPairOut:
     """
     searches db for keypair with given id and deletes it

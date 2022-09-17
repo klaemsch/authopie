@@ -19,7 +19,7 @@ router = APIRouter()
 async def export_authopie(
     export_users: bool = True,
     export_roles: bool = True,
-    token_str: str = Depends(security.oauth2_access_scheme),
+    token_str: str = Depends(security.OAuth2AccessCookieBearer()),
     db: Session = Depends(database.get)
 ):
     """
@@ -48,7 +48,7 @@ async def import_authopie(
     file: UploadFile,
     import_users: bool = True,
     import_roles: bool = True,
-    token_str: str = Depends(security.oauth2_access_scheme),
+    token_str: str = Depends(security.OAuth2AccessCookieBearer()),
     db: Session = Depends(database.get)
 ):
     """

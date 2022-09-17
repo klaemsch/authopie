@@ -59,7 +59,7 @@ async def login_for_token(
 @router.post('/refresh')
 async def refresh_token(
     response: Response,
-    token_str: str = Depends(security.oauth2_refresh_scheme),
+    token_str: str = Depends(security.OAuth2RefreshCookieBearer()),
     db: Session = Depends(database.get)
 ):
     """
@@ -85,7 +85,7 @@ async def refresh_token(
 
 @router.get('/test')
 async def test_token(
-    token_str: str = Depends(security.oauth2_access_scheme),
+    token_str: str = Depends(security.OAuth2AccessCookieBearer()),
     db: Session = Depends(database.get)
 ):
     """
@@ -106,7 +106,7 @@ async def get_api_token(
     exp: int,
     sub: str,
     aud: str,
-    token_str: str = Depends(security.oauth2_access_scheme),
+    token_str: str = Depends(security.OAuth2AccessCookieBearer()),
     db: Session = Depends(database.get)
 ) -> str:
     """
