@@ -143,8 +143,8 @@ class Token(HashableBaseModel):
     aud: str | None = config.AUD
     # expiration time
     exp: int
-    # not before TODO
-    nbf: int | None = 0
+    # not before (current timestamp in seconds)
+    nbf: int | None = int(time())
     # issued at (current timestamp in seconds)
     iat: int | None = int(time())
     # jwt id

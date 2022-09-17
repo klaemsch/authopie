@@ -57,8 +57,7 @@ def encode_token(
         payload,
         key_pair.private_key,
         algorithm='RS256',
-        headers=headers,
-        access_token=None  # TODO
+        headers=headers
     )
 
 

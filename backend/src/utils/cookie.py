@@ -8,7 +8,6 @@ from .. import config
 def set_cookie(response: Response, key: str, value: str) -> Response:
     """ set cookies in given response """
 
-    # TODO: should all values be set by config?
     response.set_cookie(
         key=key,
         value=value,
@@ -23,6 +22,8 @@ def set_cookie(response: Response, key: str, value: str) -> Response:
 
 
 def delete_cookie(response: Response, key: str) -> Response:
+    """ delete cookies in given response """
+
     response.delete_cookie(
         key,
         path=config.COOKIE_PATH,
