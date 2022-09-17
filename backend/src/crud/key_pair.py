@@ -157,4 +157,8 @@ def delete_key_pair(kid: str, db: Session) -> schemas.KeyPair:
 
     logger.debug(f'KeyPair {key_pair.kid} was successfuly deleted')
 
+    # to make sure there is always a valid key pair
+    # get random VALID key pair (generates a new one if no valid one is found)
+    get_random_valid_key_pair(db)
+
     return key_pair
