@@ -43,12 +43,12 @@ class Settings(BaseSettings):
     # root path for proxy
     ROOT_PATH: str = '/auth'
 
-    # TODO for TESTING
-    COOKIE_SAMESITE: str = 'None'
+    # Cookie Settings
+    COOKIE_SAMESITE: str = 'Strict'
     COOKIE_SECURE: bool = True
     COOKIE_HTTPONLY: bool = True
     COOKIE_MAX_AGE: int = 30
-    COOKIE_DOMAIN: str = '/'
+    COOKIE_DOMAIN: str = f'{HOST}:{PORT}'
     COOKIE_PATH: str = '/'
 
     # turn password regex on

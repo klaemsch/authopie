@@ -1,4 +1,3 @@
-from unicodedata import name
 import uuid
 from datetime import datetime
 from time import time
@@ -71,6 +70,12 @@ class UserIn(UserBase):
     username: Username
     password: Password
     roles: list[str] | None = []
+
+    @validator('username')
+    def check_len_of_username(cls, v):
+        if len(v) < 5:
+            raise ValueError('username has to be at least 5 characters long')
+        return v
 
 
 class UserInUpdate(UserIn):
