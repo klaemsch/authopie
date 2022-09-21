@@ -1,7 +1,7 @@
 """ GET TOKEN, UPDATE TOKEN, GET API TOKEN """
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from ..utils import auth, cookie
@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.post('')
+@router.post('', response_model=schemas.UserOut)
 async def login_for_token(
     response: Response,
     form_data: security.LoginRequestForm = Depends(),
@@ -26,7 +26,9 @@ async def login_for_token(
     """
     Endpoint to retrieve the first token (access + refresh token pair)
     auth with username and password
-    Success: returns 200 OK with cookies (access_token + refresh_token)
+    Success: returns 200 OK
+    - with cookies (access_token + refresh_token)
+    - and User data
     Failure: Returns 401 Unauthorized
     """
 
@@ -53,10 +55,10 @@ async def login_for_token(
     # add cookie for refresh_token
     cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
 
-    return
+    return user
 
 
-@router.post('/refresh')
+@router.post('/refresh', response_model=schemas.UserOut)
 async def refresh_token(
     response: Response,
     token_str: str = Depends(security.OAuth2RefreshCookieBearer()),
@@ -64,7 +66,9 @@ async def refresh_token(
 ):
     """
     Generate a new token pair by giving a correct refresh_token
-    Success: returns 200 OK with cookies (access_token + refresh_token)
+    Success: returns 200 OK
+    - with cookies (access_token + refresh_token)
+    - and User data
     Failure: Returns 401 Unauthorized
     """
 
@@ -80,17 +84,17 @@ async def refresh_token(
     # add cookie for refresh_token
     cookie.set_cookie(response, 'refresh_token', token_pair.refresh_token)
 
-    return
+    return token.user
 
 
-@router.get('/test')
+@router.get('/test', response_model=schemas.UserOut)
 async def test_token(
     token_str: str = Depends(security.OAuth2AccessCookieBearer()),
     db: Session = Depends(database.get)
 ):
     """
     Test Endpoint: Checks given tokens for validity
-    Success: returns 200 OK
+    Success: returns 200 OK with User Data
     AuthN Failure: Returns 401 Unauthorized
     """
 
@@ -98,7 +102,7 @@ async def test_token(
 
     auth.authorize_user(token, Scopes.NONE, db)
 
-    return JSONResponse({'detail': 'Authorization confirmed.'})
+    return token.user
 
 
 @router.get('/api')
