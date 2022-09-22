@@ -1,7 +1,7 @@
 pydantic[email]~=1.9.0
 passlib~=1.7.4
 python-jose[cryptography]~=3.3.0
-fastapi~=0.75.2
+fastapi~=0.85.0
 SQLAlchemy~=1.4.35
 uvicorn~=0.17.6
 python-multipart~=0.0.5
