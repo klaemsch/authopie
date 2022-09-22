@@ -147,7 +147,7 @@ options = {
     'require_aud': True,
     'require_iat': True,
     'require_exp': True,
-    'require_nbf': False,
+    'require_nbf': True,
     'require_iss': True,
     'require_sub': True,
     'require_jti': True,
@@ -180,7 +180,7 @@ def validate_jwt(token: str, db: Session) -> schemas.Token:
         except EntityDoesNotExistException as exc:
             # the key pair the token was signed with does not exist (anymore)
             logger.warning(exc.detail)
-            raise TokenValidationFailedException()
+            raise TokenValidationFailedException
 
         # get public key for decoding of given JWT
         public_key = key_pair.public_key

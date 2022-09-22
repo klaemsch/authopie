@@ -130,13 +130,7 @@ class KeyPairOut(HashableBaseModel):
     added_at: datetime | None    # datetime of model creation
 
 
-""" Pure Response Models """
-
-
-class TokenPair(HashableBaseModel):
-    access_token: str  # string encoded jwt
-    refresh_token: str  # string encoded jwt
-    token_type: str = 'Bearer'
+""" Token """
 
 
 class Token(HashableBaseModel):
@@ -163,6 +157,31 @@ class Token(HashableBaseModel):
 
     class Config:
         extra = Extra.allow  # allows us to append extra data
+
+
+class TokenOut(Token):
+    # user the token was created for
+    user: UserOut | None
+
+
+class TokenIn(HashableBaseModel):
+    # expiration time
+    exp: int
+    # subject (Auftraggeber)
+    sub: str
+    # audience (Empfänger)
+    aud: str
+    # areas the user has access to
+    scopes: list[str] = []
+
+
+""" Pure Response Models """
+
+
+class TokenPair(HashableBaseModel):
+    access_token: str  # string encoded jwt
+    refresh_token: str  # string encoded jwt
+    token_type: str = 'Bearer'
 
 
 class JWK(HashableBaseModel):

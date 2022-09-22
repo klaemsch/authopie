@@ -1,6 +1,6 @@
 """ GET TOKEN, UPDATE TOKEN, GET API TOKEN """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
@@ -87,29 +87,25 @@ async def refresh_token(
     return token.user
 
 
-@router.get('/test', response_model=schemas.UserOut)
+@router.post('/test', response_model=schemas.TokenOut)
 async def test_token(
-    token_str: str = Depends(security.OAuth2AccessCookieBearer()),
+    token_to_test: str = Body(),
     db: Session = Depends(database.get)
 ):
     """
     Test Endpoint: Checks given tokens for validity
-    Success: returns 200 OK with User Data
+    Success: returns 200 OK with Token Data
     AuthN Failure: Returns 401 Unauthorized
     """
 
-    token = auth.authenticate_user(token_str, db)
+    token = auth.validate_jwt(token_to_test, db)
 
-    auth.authorize_user(token, Scopes.NONE, db)
-
-    return token.user
+    return token
 
 
-@router.get('/api')
+@router.post('/api')
 async def get_api_token(
-    exp: int,
-    sub: str,
-    aud: str,
+    new_token_data: schemas.TokenIn,
     token_str: str = Depends(security.OAuth2AccessCookieBearer()),
     db: Session = Depends(database.get)
 ) -> str:
@@ -127,9 +123,10 @@ async def get_api_token(
     auth.authorize_user(token, Scopes.GOD, db)
 
     api_token = schemas.Token(
-        exp=exp,
-        sub=sub,
-        aud=aud
+        exp=new_token_data.exp,
+        sub=new_token_data.sub,
+        aud=new_token_data.aud,
+        scopes=new_token_data.scopes
     )
 
     key_pair = crud.get_random_valid_key_pair(db)
