@@ -1,7 +1,7 @@
 import uvicorn
 
 # load config from __init__.py in src
-from src import config
+from .src import config
 
 
 def main():
