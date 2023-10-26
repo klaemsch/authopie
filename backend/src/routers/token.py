@@ -120,7 +120,7 @@ async def get_api_token(
 
     token = auth.authenticate_user(token_str, db)
 
-    auth.authorize_user(token, Scopes.GOD, db)
+    auth.authorize_user(token, Scopes.MANAGE_TOKEN, db)
 
     api_token = schemas.Token(
         exp=new_token_data.exp,
