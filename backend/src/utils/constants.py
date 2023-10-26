@@ -48,9 +48,10 @@ class Scopes:
     All scopes that are internally used
     """
     GOD = Scope('*')
-    MANAGE_USERS = Scope('manage-users', '*')
-    MANAGE_ROLES = Scope('manage-roles', '*')
-    MANAGE_KEY_PAIRS = Scope('manage-key-pairs', '*')
+    MANAGE_USERS = Scope('manage-user-role', '*')
+    MANAGE_ROLES = Scope('manage-user-role', '*')
+    MANAGE_KEY_PAIRS = Scope('manage-keypair', '*')
+    MANAGE_TOKEN = Scopes('manage-token', '*')
     NONE = Scope('')
 
 
