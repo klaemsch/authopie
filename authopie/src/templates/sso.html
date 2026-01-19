@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        Authopie - A small scale, performant, authentification and authorization service, written with FastAPI
+    </title>
+    <!-- bulma for styling and fa for icons -->
+    <link rel="stylesheet" href="/static/styles/bulma.min.css">
+    <link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                Sign in with Authopie-TODO
+            </h1>
+            <div class="columns">
+
+                <div class="column">
+                    <div class="box">
+                        <p class="title">
+                            Login
+                        </p>
+                        {% if user == None %}
+                        <p class="subtitle">
+                            If you previously used Authopie and have an account you can login here
+                        </p>
+                        {% else %}
+                        <p class="subtitle">
+                            You previously logged in as
+                            <strong class="has-text-primary-dark">
+                                {% if user.display_name != None %}
+                                {{user.display_name + ' (' + user.email + ')'}}
+                                {% else %}
+                                {{user.email}}
+                                {% endif %}
+                            </strong>
+                        </p>
+                        {% endif %}
+                        <button id="signinButton" class="button is-primary">
+                            Login
+                        </button>
+                        <br />
+                        <br />
+                        <div id="signin-error-notification" class="notification hidden">
+                            The credentials you want to use are not valid. Please select other credentials or register a
+                            new account.
+                        </div>
+                        {% if user != None %}
+                        <a href="/logout"">Sign in with different account</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if user == None %}
+                <div class=" column">
+                            <div class="box">
+                                <p class="title">
+                                    Register
+                                </p>
+                                <p class="subtitle">
+                                    If this is the first time you use Authopie you can register here
+                                </p>
+                                <form id="registerForm">
+                                    <div class="field">
+
+                                        <label for="nameInputField" class="label">name</label>
+                                        <div class="control has-icons-left">
+                                            <input id="nameInputField" class="input" type="text" placeholder="name">
+                                            <span class="icon is-small is-left">
+                                                <i class="fa fa-user"></i>
+                                            </span>
+                                        </div>
+
+                                        <label for="emailInputField" class="label">email address *</label>
+                                        <div class="control has-icons-left">
+                                            <input id="emailInputField" class="input" type="email"
+                                                placeholder="please enter a valid email address" required>
+                                            <span class="icon is-small is-left">
+                                                <i class="fa fa-envelope"></i>
+                                            </span>
+                                        </div>
+
+                                        <label class="checkbox">
+                                            <input id="rememberMe" type="checkbox">
+                                            Remember me
+                                        </label>
+
+                                    </div>
+
+                                    <button id="registerButton" class="button is-primary" type="submit">
+                                        Register
+                                    </button>
+                                </form>
+                                <br />
+                                <div id="register-error-notification" class="notification hidden">
+                                    This email address is not available at the moment. Please choose a different one or
+                                    sign in.
+                                </div>
+                            </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+    </section>
+
+</body>
+<br>
+<br>
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            <strong>MPAS</strong> by <a href="https://github.com/klaemsch">Klemens Wohlfarth</a>
+        </p>
+        <!-- TODO -->
+        <!--<p>
+            <a href="">Imprint</a>
+            -
+            <a href="">Privacy Policy</a>
+        </p>-->
+
+    </div>
+</footer>
+
+<script type="module">
+
+</script>
+
+<style>
+    @font-face {
+        font-family: 'Hanken Grotesk';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(/static/fonts/hanken-grotesk.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    body {
+        font-family: 'Hanken Grotesk', sans-serif;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+
+</html>

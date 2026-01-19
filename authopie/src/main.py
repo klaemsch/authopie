@@ -8,9 +8,6 @@ from .routers import (docs, import_export, jwks, key_pair, role, token, user)
 
 app = FastAPI(
     root_path=config.ROOT_PATH,
-    docs_url=None,
-    redoc_url=None,
-    openapi_url=None
 )
 
 # Settings for handling of Cross-Origin-Requests

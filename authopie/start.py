@@ -7,7 +7,7 @@ from .src import config
 def main():
 
     uvicorn.run(
-        "src.main:app",
+        "authopie.src.main:app",
         host=config.HOST,
         port=config.PORT,
         reload=True,
